@@ -1,0 +1,87 @@
+---
+title: "Getting Started: Simulation and Estimation for Household Transmission"
+author: "Your Name"
+date: "`r format(Sys.Date())`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Getting Started: Simulation and Estimation for Household Transmission}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## Overview
+
+This vignette shows how to:
+
+* Generate synthetic household transmission data and run the full estimation pipeline with `GenSyn()`;
+
+* Estimate transmission parameters from user own long-format test data with `TransmissionChainAnalysis()`.
+
+The pipeline (used by both functions) does the following:
+
+* summarizes individuals and imputes infection timelines (latent period, reporting delay, infectious period);
+* builds a person-day table;
+* fits penalized likelihood models with optional covariates (community, household, role-specific);
+* produces post-processing summaries (means, SD/SE, bias, and relative bias for synthetic data).
+
+## Installation
+
+```{r}
+# install.packages("Household.Transmission.Chain.Data.Analysis")              # CRAN (when available)
+library(Household.Transmission.Chain.Data.Analysis)
+```
+
+
+## Expected data format
+
+Both functions consume or produce **long-format** rows of test observations with required columns:
+
+* `HH`: household id (integer)
+* `individual_ID`: individual id within household (integer)
+* `role`: one of "infant", "sibling", "adult", "elder"
+* `test_date`: integer day index or Date (dates are converted to relative day)
+* `infection_status`: 0/1 at test_date
+* `community_risk`: numeric community infection intensity at test_date
+
+Additional columns are treated as **candidate covariates** for the model via arguments such as comm_covariate_cols, hh_covariate_cols, and hh_role_covariate_cols.
+
+## 1. Synthetic example with `GenSyn()`
+
+`GenSyn()` simulates households and runs the full pipeline end-to-end. The defaults are for a quick run; user can increase n_households and n_runs for a more realistic exercise.
+```{r}
+out1 <- GenSyn(
+  n_households = 5,
+  n_runs = 3,
+  Covariates = TRUE, # generate demo covariates
+  Covariates_list = c("Vaccination status"),
+  hh_covariate_cols = "vaccination_status_mode",
+  
+  postprocessing = TRUE, # TRUE is default
+  data_summary = FALSE # set TRUE to print per-individual summary
+)
+```
+
+## 2. Estimation from user's own data with `TransmissionChainAnalysis()`
+
+If the user already have long-format data, use `TransmissionChainAnalysis()` directly. Below we create a tiny toy dataset that meets the required schema.
+```{r}
+HH = c(rep(1L, 6), rep(2L, 6))
+individual_ID = c(1,1,2,2,3,3, 1,1,2,2,3,3)
+role = c("infant","infant","adult","adult","sibling","sibling", "infant","infant","adult","adult","elder","elder")
+test_date = c(1,8,1,8,1,8, 1,8,1,8,1,8) # day indices
+infection_status = c(0,1,0,0,0,0, 0,0,0,1,0,0) # minimal toy pattern
+community_risk = rep(0.001, length(HH))
+
+df <- data.frame(HH, individual_ID, role, test_date, infection_status, community_risk)
+out2 <- TransmissionChainAnalysis(
+  user_data = df,
+  n_runs = 3, # keep small in vignette
+  postprocessing = TRUE
+)
+```

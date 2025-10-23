@@ -1,0 +1,6 @@
+^Household\.Transmission\.Chain\.Data\.Analysis\.Rproj$
+^\.Rproj\.user$
+
+^BuildingAndTesting$
+^.*\.RData$
+^README\.Rmd$
