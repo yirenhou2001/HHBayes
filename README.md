@@ -119,7 +119,7 @@ result_example2 <- TransmissionChainAnalysis(
 Best for standard binary infection data (positive/negative).
 
 ```{r}
-# 3) Simulate and estimate via MLE
+# 2) Simulate and estimate via MLE
 result_example3 <- GenSyn(
   n_households = 10,
   n_runs       = 10,
