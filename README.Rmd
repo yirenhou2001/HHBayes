@@ -44,7 +44,7 @@ Best for analyzing transmission driven by viral load trajectories and seasonalit
 library(Household.Transmission.Chain.Data.Analysis)
 # 1) Simulate and estimate via Stan
 seasonal_forcing_list <- readRDS("../inst/extdata/seasonal_forcing_list.rds")
-result_example3 <- GenSyn(
+result_example1 <- GenSyn(
   n_households = 5,
   print_plots    = FALSE,
 
@@ -63,9 +63,10 @@ result_example3 <- GenSyn(
 
 ## Method B: Legacy Engine (Maximum Likelihood)
 
-Best for standard binary infection data (Positive/Negative).
+Best for standard binary infection data (positive/negative).
 
 ```{r}
+# 2) Simulate and estimate via MLE
 result_example2 <- GenSyn(
   n_households = 10,
   n_runs       = 10,
