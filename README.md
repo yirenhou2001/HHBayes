@@ -55,7 +55,7 @@ result_example1 <- GenSyn(
 
 
 ```{r}
-# 3) Estimate from your own formatted data
+# 2) Estimate from your own formatted data
 T_max <- 12
 df_person <- rbind(
   data.frame(
@@ -119,7 +119,7 @@ result_example2 <- TransmissionChainAnalysis(
 Best for standard binary infection data (positive/negative).
 
 ```{r}
-# 2) Simulate and estimate via MLE
+# 3) Simulate and estimate via MLE
 result_example3 <- GenSyn(
   n_households = 10,
   n_runs       = 10,
