@@ -13,5 +13,8 @@ utils::globalVariables(c(
   "inf_win_start","inf_win_end",
   "infection.detected.start","infection.detected.end","infection.infectious.day",
   "last_neg_date","last_negative",
-  "indiv.index","day"
+  "indiv.index","day",
+  "infection_time", "if_infection", "n_infections", "hh_id", "n_total",
+  "n_infected", "sar", "index_vl", "vl_category", "detection_time",
+  "event_type", "person_id", "infection_status", "vl_test"
 ))

@@ -64,13 +64,3 @@ Repeats optimization \code{n_runs} times from jittered starts to estimate
 community and household transmission parameters with optional covariate effects
 and quadratic penalties.
 }
-\examples{
-\dontrun{
-est <- running_parameter_estimation(
-  long_dt, n_runs = 5,
-  lambda = 0.01, lambda0 = 0.2, lambda_alpha = 5,
-  delta0_true = qlogis(0.002), alpha0_true = qlogis(0.2)
-)
-colnames(est)
-}
-}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{summarize_individuals}
 \alias{summarize_individuals}
-\title{Summarize individual level infection data}
+\title{Summarize individual-level infection data}
 \usage{
 summarize_individuals(
   raw_dt,
@@ -13,26 +13,21 @@ summarize_individuals(
 )
 }
 \arguments{
-\item{raw_dt}{List of data frames or data tables, one per household.}
+\item{raw_dt}{List of household-level data frames/tables.}
 
-\item{study_start, study_end}{Date. Analysis window used for relative day indexing.}
+\item{study_start, study_end}{\code{Date}. Analysis window defining day indices.}
 
-\item{day_series_covariates}{Logical. If \code{TRUE}, attach day series list columns for covariates.}
+\item{day_series_covariates}{Logical; add day-series list-columns (default \code{TRUE}).}
 
-\item{series_cols}{Character vector or \code{NULL}. Which covariates to build day series for. If \code{NULL}, all detected covariates are considered.}
+\item{series_cols}{Character or \code{NULL}; covariates to series-encode (default \code{NULL} = all).}
 }
 \value{
-A \code{data.table} with one row per individual including
-infection detection start and end, inferred infectious window using relative day indices,
-index case flag, observation window, role and age category, and per person covariate summaries.
+\code{data.table} with one row per individual containing detection and
+infectious windows, flags, observation bounds, role/age, and covariate summaries.
 }
 \description{
-Produces one row per individual with infection windows, index case flags, observation bounds, and covariate summaries.
-Optionally builds day series list columns for selected covariates.
-}
-\examples{
-\dontrun{
-ind <- summarize_individuals(sims, as.Date("2024-09-21"), as.Date("2025-04-17"))
-head(ind)
-}
+Produces one row per individual with detection windows, inferred infectious
+windows (relative days), index-case flags, observation bounds, role/age
+classification, and aggregated covariates. Optionally builds day-series
+list-columns for selected covariates.
 }

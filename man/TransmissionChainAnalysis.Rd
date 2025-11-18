@@ -2,12 +2,16 @@
 % Please edit documentation in R/TransmissionChainAnalysis.R
 \name{TransmissionChainAnalysis}
 \alias{TransmissionChainAnalysis}
-\title{Estimate transmission parameters from user data}
+\title{TransmissionChainAnalysis: analyze user-supplied household data}
 \usage{
 TransmissionChainAnalysis(
   user_data,
+  estimation_method = c("mle", "stan"),
   data_summary = FALSE,
   postprocessing = TRUE,
+  plots = c("daily", "weekly", "timeline", "sar"),
+  print_plots = FALSE,
+  index_vl_column = "vl_test",
   n_runs = 10,
   day_series_covariates = TRUE,
   series_cols = NULL,
@@ -29,100 +33,126 @@ TransmissionChainAnalysis(
   lambda_alpha = 5,
   delta0_true = qlogis(0.002),
   alpha0_true = qlogis(0.2),
-  true_values = NA
+  true_values = NULL,
+  seasonal_forcing_list = NULL,
+  max_days = 365,
+  stan_file = "../inst/stan/HH_parameter_estimation2.stan",
+  stan_chains = 1,
+  stan_iter = 100,
+  stan_warmup = 100,
+  stan_control = list(adapt_delta = 0.99, max_treedepth = 20),
+  stan_init = "random",
+  stan_refresh = 50,
+  stan_cores = 4,
+  vl_mode = c("auto", "from_long"),
+  vl_source = c("column", "simulate", "none"),
+  vl_column = NULL,
+  role_levels = c("adult", "child", "elderly", "toddler")
 )
 }
 \arguments{
-\item{user_data}{Data frame (preferred) with the required columns listed above; alternatively,
-a list of per-household data frames which will be row-bound. Must not be \code{NULL}.}
+\item{user_data}{A data.frame or a list of data.frames describing household testing
+or episode data (see Details for accepted shapes). Lists are row-bound internally.}
 
-\item{data_summary}{Logical. If \code{TRUE}, prints \code{results$summarized_data}. Default \code{FALSE}.}
+\item{estimation_method}{One of \code{c("mle","stan")}. Valid pairs are
+legacy+MLE (\code{"mle"}) and RSV/VL+Stan (\code{"stan"}).}
 
-\item{postprocessing}{Logical. If \code{TRUE} (default), prints \code{\link{postprocessing_estimates}}.}
+\item{data_summary}{Logical; print/retain a brief summary in print methods (see Value).}
 
-\item{n_runs}{Integer. Number of repeated estimation runs. Default \code{10}.}
+\item{postprocessing}{Logical; for MLE, compute a post-processing table; for Stan, this is an alias of the posterior summary.}
 
-\item{day_series_covariates}{Logical. If \code{TRUE}, builds day-series list-columns for covariates in the person–day table. Default \code{TRUE}.}
+\item{plots}{Character vector of plot names to build when compatible data are present:
+\code{c("daily","weekly","timeline","sar")} or \code{"all"}.}
 
-\item{series_cols}{Character vector of covariate names (pre-normalization) for which to build day-series; if \code{NULL}, all detected covariates are used.}
+\item{print_plots}{Logical; print plots if produced.}
 
-\item{comm_covariate_cols}{Character vector of community-model covariates (no intercept).}
+\item{index_vl_column}{Optional character; name of the viral-load column used by SAR-by-VL plotting. Defaults to \code{"vl_test"} when present.}
 
-\item{hh_covariate_cols}{Character vector of household-model covariates shared across roles.}
+\item{n_runs}{Integer; number of repeated estimation runs (MLE path only).}
 
-\item{hh_by_role}{Logical. If \code{TRUE}, use role-specific household covariates.}
+\item{day_series_covariates}{Logical; include day-series covariates (MLE path).}
 
-\item{hh_role_covariate_cols}{Named list with elements \code{infant}, \code{sibling}, \code{adult}, \code{elder}
-providing covariate names per role when \code{hh_by_role=TRUE}.}
+\item{series_cols}{Optional character vector; selected day-series columns (MLE path).}
 
-\item{standardize_covariates}{Logical. Z-score non-binary numeric columns in model matrices. Default \code{TRUE}.}
+\item{comm_covariate_cols, hh_covariate_cols}{Optional character vectors of likelihood-level covariates (MLE path).}
 
-\item{lambda_comm, lambda_hh}{Numeric. L2 penalties for community and household covariate coefficients.}
+\item{hh_by_role}{Logical; fit separate household effects by role (MLE path).}
 
-\item{start_date, end_date}{\code{Date}. Study window used for summarization and imputation if \code{test_date} is provided as \code{Date}.}
+\item{hh_role_covariate_cols}{Optional named list of role-specific covariates (MLE path).}
 
-\item{latent_par, report_par, infect_par}{Lists with Gamma(\code{shape}, \code{scale}) parameters for imputation of latent delay,
-reporting delay, and infectious period.}
+\item{standardize_covariates}{Logical; standardize covariates (MLE path).}
 
-\item{start_par}{Numeric vector of initial parameters (auto-expanded if length mismatches model).}
+\item{lambda_comm, lambda_hh}{Numeric; ridge penalties for community and household covariates (MLE path).}
 
-\item{lambda}{Base L2 penalty for slope-like parameters (age multipliers and household role offsets).}
+\item{start_date, end_date}{\code{Date} study window.}
 
-\item{lambda0}{Penalty anchoring \code{delta0} near \code{delta0_true}.}
+\item{latent_par, report_par, infect_par}{Lists of gamma parameters (shape, scale) used by imputation (MLE path).}
 
-\item{lambda_alpha}{Penalty anchoring \code{alpha0} near \code{alpha0_true}.}
+\item{start_par}{Numeric vector; optimizer starting values (MLE path).}
 
-\item{delta0_true, alpha0_true}{Numeric anchors (logit scale) for community baseline and household baseline.}
+\item{lambda, lambda0, lambda_alpha}{Numeric; optimizer penalties (MLE path).}
 
-\item{true_values}{Optional named numeric vector of reference values. Names
-should match columns in \code{theta_mat}. Unmatched names are ignored; missing
-references yield \code{NA} bias/relative bias.}
+\item{delta0_true, alpha0_true}{Numeric anchors on the logit scale (MLE path).}
+
+\item{true_values}{Optional named numeric vector of reference/true values for post-processing (MLE path).}
+
+\item{seasonal_forcing_list}{Optional named list of role vectors for forcing (Stan path).}
+
+\item{max_days}{Integer; maximum modeled days (Stan path).}
+
+\item{stan_file}{Path to a Stan model file.}
+
+\item{stan_chains, stan_iter, stan_warmup}{Integers; Stan sampling controls.}
+
+\item{stan_control}{List; passed to \code{rstan::sampling(..., control = ...)}.}
+
+\item{stan_init}{Character or function; Stan initialization.}
+
+\item{stan_refresh}{Integer; Stan refresh rate.}
+
+\item{stan_cores}{Integer; CPU cores for Stan.}
+
+\item{vl_mode}{One of \code{c("auto","from_long")} indicating how to derive VL for Stan path.}
+
+\item{vl_source}{One of \code{c("column","simulate","none")} indicating the VL source for Stan path.}
+
+\item{vl_column}{Optional character; the VL column when \code{vl_source="column"} (Stan path).}
+
+\item{role_levels}{Character vector; canonical role levels for normalization on the Stan path.}
 }
 \value{
-(Invisibly) a list with elements:
+An object of class \code{"TransmissionChainResult"} containing:
 \itemize{
-\item \code{results}: Output of \code{\link{main_parameter_estimation_pipeline}} (summaries, person-day, estimates).
-\item \code{postprocessing}: The table returned by \code{\link{postprocessing_estimates}} (or \code{NULL} if \code{postprocessing=FALSE}).
+\item \code{$results}: engine-specific internals (MLE: summaries/person-day/estimates;
+Stan: stan_data, fit, posterior_summary).
+\item \code{$postprocessing}: MLE summary table or Stan posterior summary.
+\item \code{$plot_list}: named list of ggplot objects when built.
+\item \code{$data_summary}: flag indicating whether print methods preview summaries.
 }
 }
 \description{
-Runs the full parameter-estimation pipeline on user-provided long-format testing data.
-By default, prints a post-processing table (mean estimates, SD/SE, bias, relative bias).
-Optionally prints the per-individual summary produced by the pipeline.
+Runs the end-to-end workflow on \emph{user-provided} data using either the
+legacy MLE path (\code{estimation_method = "mle"}) or the RSV/VL Stan path
+(\code{estimation_method = "stan"}). This function does not simulate data;
+it expects input in tabular form (see Details).
 }
 \details{
-This wrapper calls \code{\link{main_parameter_estimation_pipeline}} with \code{synthetic_data=FALSE}
-and passes \code{user_data} through \code{\link{dataframe_to_household_list}} internally. If \code{user_data} is a list
-of per-household data frames, it is row-bound before processing. Character covariates are internally factorized
-via model matrices when used in the likelihood.
-}
-\section{Required columns in \code{user_data}}{
-
+\strong{Accepted input shapes}:
 \itemize{
-\item \code{HH} — household identifier (integer)
-\item \code{individual_ID} — individual identifier within household (integer)
-\item \code{role} — one of \code{"infant"}, \code{"sibling"}, \code{"adult"}, \code{"elder"}
-\item \code{test_date} — test day (integer or \code{Date}; \code{Date} will be converted to relative day)
-\item \code{infection_status} — 0/1 infectious status at \code{test_date}
-\item \code{community_risk} — numeric community infection intensity at \code{test_date}
+\item Long testing table with columns like \code{HH}, \code{individual_ID}, \code{role},
+\code{test_date}, \code{infection_status}, and optionally a VL column.
+\item Per-person episode table with \code{hh_id}, \code{person_id}, \code{role},
+\code{infection_time}, \code{infectious_start}, \code{infectious_end},
+and optionally a viral-load trajectory.
 }
-Any additional columns are treated as candidate covariates and may be included in the likelihood
-via \code{comm_covariate_cols}, \code{hh_covariate_cols}, or \code{hh_role_covariate_cols}.
+Only two engine/method pairs are supported: legacy+MLE and RSV/VL+Stan.
 }
-
 \examples{
 \dontrun{
-# Suppose df is your long-format dataset with required columns:
-fit <- TransmissionChainAnalysis(
-  user_data = df,
-  n_runs = 20,
-  comm_covariate_cols = c("cases"),
-  hh_covariate_cols   = c("vaccination_status_mode")
-)
-fit$postprocessing
+# MLE path requires full legacy preprocessing; shown here schematically:
+# res <- TransmissionChainAnalysis(user_data = your_long_df, estimation_method = "mle")
 }
 }
 \seealso{
-\code{\link{GenSyn}}, \code{\link{main_parameter_estimation_pipeline}},
-\code{\link{data_summarization}}, \code{\link{postprocessing_estimates}}
+\code{\link{main_parameter_estimation_pipeline}}, \code{\link{postprocessing_estimates}}
 }

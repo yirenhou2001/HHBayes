@@ -2,28 +2,22 @@
 % Please edit documentation in R/GenSyn.R
 \name{print.GenSynResult}
 \alias{print.GenSynResult}
-\title{Print a GenSynResult}
+\title{Print method for \code{GenSynResult}}
 \usage{
 \method{print}{GenSynResult}(x, ...)
 }
 \arguments{
-\item{x}{A \code{GenSynResult} object, typically the result of \code{\link{GenSyn}}.}
+\item{x}{A \code{GenSynResult} object (from \code{\link{GenSyn}}).}
 
-\item{...}{Passed to or from other methods (unused).}
+\item{...}{Unused.}
 }
 \value{
-\code{x}, returned invisibly.
+\code{x}, invisibly.
 }
 \description{
-Nicely prints sections available in a \code{GenSynResult} returned by
-\code{\link{GenSyn}}. If present, the per-individual data summary and the
-post-processing table are shown; otherwise concise guidance is printed.
-}
-\details{
-This S3 method is invoked when a \code{GenSynResult} is printed (e.g., typing
-the object at the console or calling \code{print(x)}). The method does not
-perform any computation and does not modify global state; it only formats and
-prints components that were included in the returned object.
+Formats a \code{GenSynResult} for display. Prints engine/method,
+basic run info, any stored post-processing table, and (legacy+MLE only)
+a short individual-level preview when \code{x$data_summary} is \code{TRUE}.
 }
 \seealso{
 \code{\link{GenSyn}}

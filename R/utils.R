@@ -1,156 +1,17 @@
-#' Simulate synthetic household data (list output)
-#'
-#' Simulates independent households by repeatedly calling a single household simulation function (default: \code{\link{generate_synthetic_data_one}}).
-#' Returns a list of long format data frames, one per household.
-#'
-#' @param n_households Integer. Number of households to simulate.
-#' @param simulation_function Function. The single household simulation function to call.
-#' @param hh.size Integer. Household size applied to each simulated household.
-#' @param tests.per.week Integer. Tests per person per week.
-#'
-#' @param p.comm.base.infant.fix Numeric. Baseline community infection probability for infants per day.
-#' @param p.comm.multiplier.sibling,p.comm.multiplier.parent,p.comm.multiplier.elder
-#'   Numeric multipliers applied to the infant baseline for sibling, parent (adult), and elder, respectively.
-#'
-#' @param p.hh.base.infant Numeric. Baseline within household transmission probability per infectious infant contact per day.
-#' @param p.hh.multiplier.sibling,p.hh.multiplier.parent,p.hh.multiplier.elder
-#'   Multipliers relative to the infant baseline for sibling, parent (adult), and elder.
-#'
-#' @param p.imm.base.sibling,p.imm.base.parent,p.imm.base.elder Numeric. Baseline immunity probabilities at day 1 by role.
-#' @param partial.immunity.infant,partial.immunity.sibling,partial.immunity.parent,partial.immunity.elder
-#'   Numeric. Partial immunity by role.
-#'
-#' @param duration.latent Integer. Mean latent period in days.
-#' @param duration.infect.inf Integer. Mean infectious duration for infants in days.
-#' @param multiplier.dur.sibpar Numeric. Infectious duration multiplier for non infant roles.
-#' @param p.detect Numeric. Probability that an infection present on a testing day is detected,
-#'
-#' @param amplitude,phase Numeric. Seasonality parameters for community risk.
-#' @param start_date,end_date Date. Simulation window.
-#'
-#' @param Covariates Logical. If \code{TRUE}, generate additional covariates.
-#' @param Covariates_list Character vector. Names of covariates to generate.
-#' @param Covariate_specifications List. Optional per covariate specifications.
-#'
-#' @return A list of length \code{n_households}. Each element is a data frame with columns
-#'   \code{HH}, \code{individual_ID}, \code{role}, \code{test_date}, \code{infection_status},
-#'   \code{community_risk}, and any generated covariates.
-#'
-#' @seealso \code{\link{generate_synthetic_data_one}}, \code{\link{generate_synthetic_data_standardized}}
-#'
-#' @examples
-#' \dontrun{
-#' sims <- simulate_households(5, hh.size = 4, tests.per.week = 2)
-#' length(sims); head(sims[[1]])
-#' }
-simulate_households <- function(n_households,
-                                simulation_function = generate_synthetic_data_one,
-                                hh.size = sample(3:7,1),
-                                tests.per.week,
-
-                                #Community infection params
-                                p.comm.base.infant.fix = 0.001,
-                                p.comm.multiplier.sibling = 1,
-                                p.comm.multiplier.parent = 1,
-                                p.comm.multiplier.elder  = 1,
-
-                                #Household transmission params
-                                p.hh.base.infant = 0.1,
-                                p.hh.multiplier.sibling = 1,
-                                p.hh.multiplier.parent  = 1,
-                                p.hh.multiplier.elder   = 1,
-
-                                #Baseline immunity
-                                p.imm.base.sibling = 1e-10,
-                                p.imm.base.parent  = 1e-10,
-                                p.imm.base.elder   = 1e-10,
-
-                                #Partial immunity (breakthrough) modifiers
-                                partial.immunity.infant  = 1e-10,
-                                partial.immunity.sibling = 1e-10,
-                                partial.immunity.parent  = 1e-10,
-                                partial.immunity.elder   = 1e-10,
-
-                                #Natural history + detection
-                                duration.latent = 2,
-                                duration.infect.inf = 3,
-                                multiplier.dur.sibpar = 0.5,
-                                p.detect = 0.999,
-
-                                #Seasonality + timeline
-                                amplitude = 0,
-                                phase = -0.408,
-                                start_date = as.Date("2024-09-21"),
-                                end_date   = as.Date("2025-04-17"),
-
-                                #Covariates
-                                Covariates = FALSE,
-                                Covariates_list = c("Vaccination status", "Antibody Level"),
-                                Covariate_specifications = NULL) {
-
-  lapply(seq_len(n_households), function(i) {
-    simulation_function(
-      household_id               = i,
-      hh.size                    = hh.size,
-      tests.per.week             = tests.per.week,
-
-      p.comm.base.infant.fix     = p.comm.base.infant.fix,
-      p.comm.multiplier.sibling  = p.comm.multiplier.sibling,
-      p.comm.multiplier.parent   = p.comm.multiplier.parent,
-      p.comm.multiplier.elder    = p.comm.multiplier.elder,
-
-      p.hh.base.infant           = p.hh.base.infant,
-      p.hh.multiplier.sibling    = p.hh.multiplier.sibling,
-      p.hh.multiplier.parent     = p.hh.multiplier.parent,
-      p.hh.multiplier.elder      = p.hh.multiplier.elder,
-
-      p.imm.base.sibling         = p.imm.base.sibling,
-      p.imm.base.parent          = p.imm.base.parent,
-      p.imm.base.elder           = p.imm.base.elder,
-
-      partial.immunity.infant    = partial.immunity.infant,
-      partial.immunity.sibling   = partial.immunity.sibling,
-      partial.immunity.parent    = partial.immunity.parent,
-      partial.immunity.elder     = partial.immunity.elder,
-
-      duration.latent            = duration.latent,
-      duration.infect.inf        = duration.infect.inf,
-      multiplier.dur.sibpar      = multiplier.dur.sibpar,
-      p.detect                   = p.detect,
-
-      amplitude                  = amplitude,
-      phase                      = phase,
-      start_date                 = start_date,
-      end_date                   = end_date,
-
-      Covariates                 = Covariates,
-      Covariates_list            = Covariates_list,
-      Covariate_specifications   = Covariate_specifications
-    )
-  })
-}
-
-
-
 #' Convert a user data frame to a list of household tables
 #'
-#' Splits a long format data frame of test observations into a list of
-#' household level data tables. The function preserves required columns and allows any extra user provided covariates.
+#' Splits a long-format test table into a list of per-household \code{data.table}s,
+#' preserving the required columns and (optionally) any extra covariates.
 #'
-#' @param df Data frame. Must contain at least columns for household ID, individual ID, role, test date, infection status, and community risk.
+#' @param df Data frame with at least household ID, individual ID, role, test date,
+#'   infection status, and community risk columns.
 #' @param hh_col,id_col,role_col,date_col,inf_col,comm_col Character. Column names
-#'   for household ID (default "HH"), individual ID ("individual_ID"),
-#'   role ("role"), test date ("test_date"), infection status
-#'   ("infection_status"), and community risk ("community_risk").
-#' @param keep_extra_cols Logical. If \code{TRUE} (default), retain additional covariate columns.
+#'   for household ID (default \code{"HH"}), individual ID (\code{"individual_ID"}),
+#'   role (\code{"role"}), test date (\code{"test_date"}), infection status
+#'   (\code{"infection_status"}), and community risk (\code{"community_risk"}).
+#' @param keep_extra_cols Logical; keep additional user columns (default \code{TRUE}).
 #'
-#' @return A list of data tables, one per household. Columns are ordered with household ID first.
-#'
-#' @examples
-#' \dontrun{
-#' hh_list <- dataframe_to_household_list(df)
-#' length(hh_list); names(hh_list)[1]; head(hh_list[[1]])
-#' }
+#' @return List of \code{data.table}s, one per household (household ID placed first).
 dataframe_to_household_list <- function(df,
                                         hh_col   = "HH",
                                         id_col   = "individual_ID",
@@ -201,25 +62,21 @@ dataframe_to_household_list <- function(df,
 }
 
 
-#' Summarize individual level infection data
+
+#' Summarize individual-level infection data
 #'
-#' Produces one row per individual with infection windows, index case flags, observation bounds, and covariate summaries.
-#' Optionally builds day series list columns for selected covariates.
+#' Produces one row per individual with detection windows, inferred infectious
+#' windows (relative days), index-case flags, observation bounds, role/age
+#' classification, and aggregated covariates. Optionally builds day-series
+#' list-columns for selected covariates.
 #'
-#' @param raw_dt List of data frames or data tables, one per household.
-#' @param study_start,study_end Date. Analysis window used for relative day indexing.
-#' @param day_series_covariates Logical. If \code{TRUE}, attach day series list columns for covariates.
-#' @param series_cols Character vector or \code{NULL}. Which covariates to build day series for. If \code{NULL}, all detected covariates are considered.
+#' @param raw_dt List of household-level data frames/tables.
+#' @param study_start,study_end \code{Date}. Analysis window defining day indices.
+#' @param day_series_covariates Logical; add day-series list-columns (default \code{TRUE}).
+#' @param series_cols Character or \code{NULL}; covariates to series-encode (default \code{NULL} = all).
 #'
-#' @return A \code{data.table} with one row per individual including
-#'   infection detection start and end, inferred infectious window using relative day indices,
-#'   index case flag, observation window, role and age category, and per person covariate summaries.
-#'
-#' @examples
-#' \dontrun{
-#' ind <- summarize_individuals(sims, as.Date("2024-09-21"), as.Date("2025-04-17"))
-#' head(ind)
-#' }
+#' @return \code{data.table} with one row per individual containing detection and
+#'   infectious windows, flags, observation bounds, role/age, and covariate summaries.
 summarize_individuals <- function(raw_dt, study_start, study_end,
                                   day_series_covariates = TRUE,
                                   series_cols = NULL
@@ -229,6 +86,15 @@ summarize_individuals <- function(raw_dt, study_start, study_end,
 
   #Bind all households into long format rows (test records)
   raw_long <- data.table::rbindlist(raw_dt, use.names = TRUE, fill = TRUE)
+
+  # inside summarize_individuals(), just after you set raw_long:
+  raw_long[, role := tolower(role)]
+  # include common aliases
+  raw_long[role %in% c("parent","adult"), role := "adult"]
+  raw_long[role %in% c("elder","elderly"), role := "elder"]
+  raw_long[role %in% c("child","sibling"), role := "sibling"]
+  raw_long[role %in% c("infant","baby","toddler"), role := "infant"]
+
   data.table::setDT(raw_long)
 
   #Core columns that are NOT covariates
@@ -468,31 +334,19 @@ summarize_individuals <- function(raw_dt, study_start, study_end,
 
 #' Impute infection timelines from delay distributions
 #'
-#' Imputes infection date, infectious start and end, and component delays using gamma
-#' distributions, optionally scaled by user functions of covariates.
+#' Imputes infection date, infectious start/end, and component delays using
+#' gamma distributions, optionally scaled by covariate functions.
 #'
-#' @param dt data.table. Individual level summary from \code{\link{summarize_individuals}}.
-#' @param study_start Date. Reference origin for relative day indices.
-#' @param latent_par,report_par,infect_par Lists with elements \code{shape} and \code{scale}
-#'   for the latent, reporting, and infectious period gamma distributions.
-#' @param latent_scale_fn,report_scale_fn,infect_scale_fn Optional functions that take
-#'   \code{dt[idx]} for infected rows and return numeric multipliers for the corresponding scales.
+#' @param dt \code{data.table} from \code{\link{summarize_individuals}}.
+#' @param study_start \code{Date} origin for relative day indices.
+#' @param latent_par,report_par,infect_par Lists with \code{shape} and \code{scale}
+#'   for latent, reporting, and infectious periods.
+#' @param latent_scale_fn,report_scale_fn,infect_scale_fn Optional functions taking
+#'   \code{dt[idx]} (infected rows) and returning numeric scale multipliers.
 #'
-#' @return The input \code{dt} with added or imputed columns:
-#'   \code{latent_delay}, \code{report_delay}, \code{infect_period},
-#'   \code{inf_date}, \code{inf_start_date}, \code{inf_end_date},
-#'   and relative day versions \code{inf_day_rl}, \code{infectious_day_rl}, \code{infectious_end_day_rl}.
-#'
-#' @examples
-#' \dontrun{
-#' imputed <- infectious_time_imputation(
-#'   dt = ind,
-#'   study_start = as.Date("2024-09-21"),
-#'   latent_par = list(shape = 2, scale = 1),
-#'   report_par = list(shape = 1, scale = 1.5),
-#'   infect_par = list(shape = 3, scale = 2)
-#' )
-#' }
+#' @return The input \code{dt} with columns \code{latent_delay}, \code{report_delay},
+#'   \code{infect_period}, \code{inf_date}, \code{inf_start_date}, \code{inf_end_date},
+#'   and relative-day variants.
 infectious_time_imputation <- function(dt, study_start,
                                        latent_par, report_par, infect_par,
 
@@ -578,28 +432,20 @@ infectious_time_imputation <- function(dt, study_start,
 
 
 
-
-#' Construct long format person day data
+#' Construct person-day long data
 #'
-#' Builds a person day table for likelihood based parameter estimation by expanding
-#' individual level timelines into daily observations and computing same household
-#' infectious counts by infector role.
+#' Expands individual timelines into daily rows and computes within-household
+#' infectious counts by infector role for likelihood-based estimation.
 #'
-#' @param dt data.table. Individual level data with infection or imputation results from \code{\link{infectious_time_imputation}}.
-#' @param tmax Integer. Maximum day index
-#' @param cases_t Numeric vector of length \code{tmax + 1}. Community intensity on days 0 to \code{tmax}.
-#' @param covariate_cols Character vector. Names of row level covariates to copy.
+#' @param dt \code{data.table} from \code{\link{infectious_time_imputation}}.
+#' @param tmax Integer; maximum day index.
+#' @param cases_t Numeric of length \code{tmax + 1}; community intensity for days 0..\code{tmax}.
+#' @param covariate_cols Character; names of covariates to carry (scalars or day series).
 #'
-#' @return A long format \code{data.table} with columns
-#'   \code{agegrp2}, \code{agegrp3}, \code{agegrp4},
-#'   \code{n_inf}, \code{n_inf_infant}, \code{n_inf_sibling}, \code{n_inf_adult}, \code{n_inf_elder},
-#'   \code{cases}, \code{event}, \code{ID_indiv}, \code{ID_hh}, \code{day}, and the requested covariates.
-#'
-#' @examples
-#' \dontrun{
-#' long_dt <- build_person_day_table(imputed, tmax = 200, cases_t = rep(0.001, 201))
-#' head(long_dt)
-#' }
+#' @return \code{data.table} with columns:
+#'   \code{agegrp2}, \code{agegrp3}, \code{agegrp4}, \code{n_inf},
+#'   \code{n_inf_infant}, \code{n_inf_sibling}, \code{n_inf_adult}, \code{n_inf_elder},
+#'   \code{cases}, \code{event}, \code{ID_indiv}, \code{ID_hh}, \code{day}, and requested covariates.
 build_person_day_table <- function(dt, tmax, cases_t, covariate_cols = character(0)) {
   dt <- data.table::copy(dt)
 
@@ -743,6 +589,7 @@ build_person_day_table <- function(dt, tmax, cases_t, covariate_cols = character
 
 
 
+
 #' Run penalized maximum likelihood parameter estimation
 #'
 #' Repeats optimization \code{n_runs} times from jittered starts to estimate
@@ -770,16 +617,6 @@ build_person_day_table <- function(dt, tmax, cases_t, covariate_cols = character
 #'
 #' @return A numeric matrix of dimension \code{n_runs} by \code{n_parameters} with column names that match
 #'   the parameter layout, for example \code{delta0}, \code{gamma2}, \code{alpha0}, \code{z_sib}, and \code{theta_*}.
-#'
-#' @examples
-#' \dontrun{
-#' est <- running_parameter_estimation(
-#'   long_dt, n_runs = 5,
-#'   lambda = 0.01, lambda0 = 0.2, lambda_alpha = 5,
-#'   delta0_true = qlogis(0.002), alpha0_true = qlogis(0.2)
-#' )
-#' colnames(est)
-#' }
 running_parameter_estimation <- function(long_dt, n_runs, start_par = NULL,
                                          lambda,
                                          lambda0,
@@ -1008,67 +845,37 @@ running_parameter_estimation <- function(long_dt, n_runs, start_par = NULL,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 #' Generate standardized synthetic data for one household
 #'
-#' Simulates testing observations for a single household across a date range
-#' with community risk using seasonal forcing, within-household transmission,
-#' adaptive testing, baseline and partial immunity, and optional covariates.
+#' Simulates test-day observations for one household over a date window with
+#' community seasonality, within-household transmission, adaptive testing,
+#' baseline/partial immunity, and optional covariates.
 #'
-#' @param household_id Integer. Household identifier used to populate the \code{HH} column.
-#' @param hh.size Integer. Household size.
-#' @param tests.per.week Integer. Tests per person per week.
-#'
-#' @param p.comm.base.infant.fix Numeric. Baseline community infection probability for infants per day.
+#' @param household_id Integer; household identifier written to \code{HH}.
+#' @param hh.size Integer; household size.
+#' @param tests.per.week Integer; tests per person per week.
+#' @param p.comm.base.infant.fix Numeric; baseline community infection prob/day (infant).
 #' @param p.comm.multiplier.sibling,p.comm.multiplier.parent,p.comm.multiplier.elder
-#'   Numeric multipliers relative to the infant baseline for sibling, parent (adult), and elder.
-#'
-#' @param p.hh.base.infant Numeric. Baseline within-household transmission probability per infectious infant contact per day.
+#'   Numeric; community multipliers by role.
+#' @param p.hh.base.infant Numeric; baseline within-household infection prob/day (infant source).
 #' @param p.hh.multiplier.sibling,p.hh.multiplier.parent,p.hh.multiplier.elder
-#'   Multipliers relative to the infant baseline for sibling, parent (adult), and elder.
-#'
-#' @param p.imm.base.sibling,p.imm.base.parent,p.imm.base.elder Numeric. Baseline immunity probabilities at day 1 by role.
+#'   Numeric; within-household multipliers by source role.
+#' @param p.imm.base.sibling,p.imm.base.parent,p.imm.base.elder Numeric; baseline immunity at day 1.
 #' @param partial.immunity.infant,partial.immunity.sibling,partial.immunity.parent,partial.immunity.elder
-#'   Numeric. Partial-immunity modifiers by role.
+#'   Numeric; partial-immunity modifiers by role.
+#' @param duration.latent Integer; mean latent period (days).
+#' @param duration.infect.inf Integer; mean infectious duration for infants (days).
+#' @param multiplier.dur.sibpar Numeric; infectious-duration multiplier for non-infants.
+#' @param p.detect Numeric; detection probability if infected on a test day.
+#' @param amplitude,phase Numeric; seasonality parameters for community risk.
+#' @param start_date,end_date \code{Date}; simulation window.
+#' @param Covariates Logical; generate additional covariates.
+#' @param Covariates_list Character; covariate names.
+#' @param Covariate_specifications List; optional per-covariate specs.
 #'
-#' @param duration.latent Integer. Mean latent period (days).
-#' @param duration.infect.inf Integer. Mean infectious duration for infants (days).
-#' @param multiplier.dur.sibpar Numeric. Infectious-duration multiplier for non-infant roles.
-#' @param p.detect Numeric. Probability that an infection present on a testing day is detected.
-#'
-#' @param amplitude,phase Numeric. Seasonality parameters for community risk.
-#' @param start_date,end_date Date. Simulation window.
-#'
-#' @param Covariates Logical. If \code{TRUE}, generate additional covariates.
-#' @param Covariates_list Character vector. Names of covariates to generate.
-#' @param Covariate_specifications List. Optional per-covariate specifications.
-#'
-#' @return A data frame with columns:
-#'   \itemize{
-#'     \item \code{HH} household ID
-#'     \item \code{individual_ID} individual index within the household
-#'     \item \code{role} one of "infant", "sibling", "adult", or "elder"
-#'     \item \code{test_date} day index where 1 maps to \code{start_date}
-#'     \item \code{infection_status} 0/1 at the test day
-#'     \item \code{community_risk} community infection intensity on that day
-#'     \item additional covariate columns when \code{Covariates = TRUE}
-#'   }
-#'
-#' @examples
-#' \dontrun{
-#' df1 <- generate_synthetic_data_one(1, hh.size = 4, tests.per.week = 2, Covariates = TRUE)
-#' head(df1)
-#' }
+#' @return Data frame with columns \code{HH}, \code{individual_ID}, \code{role},
+#'   \code{test_date} (1 = \code{start_date}), \code{infection_status},
+#'   \code{community_risk}, and optional covariates.
 generate_synthetic_data_one <- function(
     household_id,
     hh.size = sample(3:7,1),
@@ -1419,5 +1226,3 @@ generate_synthetic_data_one <- function(
   }
   return(test_df)
 }
-
-

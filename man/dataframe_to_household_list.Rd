@@ -16,25 +16,20 @@ dataframe_to_household_list(
 )
 }
 \arguments{
-\item{df}{Data frame. Must contain at least columns for household ID, individual ID, role, test date, infection status, and community risk.}
+\item{df}{Data frame with at least household ID, individual ID, role, test date,
+infection status, and community risk columns.}
 
 \item{hh_col, id_col, role_col, date_col, inf_col, comm_col}{Character. Column names
-for household ID (default "HH"), individual ID ("individual_ID"),
-role ("role"), test date ("test_date"), infection status
-("infection_status"), and community risk ("community_risk").}
+for household ID (default \code{"HH"}), individual ID (\code{"individual_ID"}),
+role (\code{"role"}), test date (\code{"test_date"}), infection status
+(\code{"infection_status"}), and community risk (\code{"community_risk"}).}
 
-\item{keep_extra_cols}{Logical. If \code{TRUE} (default), retain additional covariate columns.}
+\item{keep_extra_cols}{Logical; keep additional user columns (default \code{TRUE}).}
 }
 \value{
-A list of data tables, one per household. Columns are ordered with household ID first.
+List of \code{data.table}s, one per household (household ID placed first).
 }
 \description{
-Splits a long format data frame of test observations into a list of
-household level data tables. The function preserves required columns and allows any extra user provided covariates.
-}
-\examples{
-\dontrun{
-hh_list <- dataframe_to_household_list(df)
-length(hh_list); names(hh_list)[1]; head(hh_list[[1]])
-}
+Splits a long-format test table into a list of per-household \code{data.table}s,
+preserving the required columns and (optionally) any extra covariates.
 }

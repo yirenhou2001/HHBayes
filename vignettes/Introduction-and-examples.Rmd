@@ -17,18 +17,17 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## Overview
 
-This vignette shows how to:
+This package provides a streamlined pipeline to simulate household infection dynamics, estimate transmission parameters, and visualize epidemic spread. It supports two distinct modeling approaches:
 
-* Generate synthetic household transmission data and run the full estimation pipeline with `GenSyn()`;
+A. **RSV / Viral-Load Engine (Stan):** A Bayesian approach that models transmission probability as a function of viral load, seasonality, and role-specific susceptibility.
 
-* Estimate transmission parameters from user own long-format test data with `TransmissionChainAnalysis()`.
+B. **Legacy / MLE Engine:** A likelihood-based approach for binary infection status data using `optim` with support for extensive covariates.
 
-The pipeline (used by both functions) does the following:
+This vignette shows how to use the two core functions:
 
-* summarizes individuals and imputes infection timelines (latent period, reporting delay, infectious period);
-* builds a person-day table;
-* fits penalized likelihood models with optional covariates (community, household, role-specific);
-* produces post-processing summaries (means, SD/SE, bias, and relative bias for synthetic data).
+* `GenSyn()`: Generates synthetic data and runs the full estimation pipeline (ideal for validation and benchmarking).
+
+* `TransmissionChainAnalysis()`: Estimates parameters from your own long-format testing data.
 
 ## Installation
 
@@ -38,50 +37,164 @@ library(Household.Transmission.Chain.Data.Analysis)
 ```
 
 
-## Expected data format
+## Expected Data Format
+Both functions utilize **long-format** rows of test observations.
 
-Both functions consume or produce **long-format** rows of test observations with required columns:
+# Required Columns:
 
-* `HH`: household id (integer)
-* `individual_ID`: individual id within household (integer)
-* `role`: one of "infant", "sibling", "adult", "elder"
-* `test_date`: integer day index or Date (dates are converted to relative day)
-* `infection_status`: 0/1 at test_date
-* `community_risk`: numeric community infection intensity at test_date
+* `HH`: Household ID (integer or character)
 
-Additional columns are treated as **candidate covariates** for the model via arguments such as comm_covariate_cols, hh_covariate_cols, and hh_role_covariate_cols.
+* `individual_ID`: Individual ID within household (integer)
 
-## 1. Synthetic example with `GenSyn()`
+* `role`: Family role. The Stan engine normalizes these to: "child", "toddler", "adult", "elderly".
 
-`GenSyn()` simulates households and runs the full pipeline end-to-end. The defaults are for a quick run; user can increase n_households and n_runs for a more realistic exercise.
+* `test_date`: Integer day index or Date object (dates are converted to relative days).
+
+* `infection_status`: 0/1 binary indicator (1 = infected/detected).
+
+# Engine-Specific Columns:
+
+* **RSV (Stan):** `vl_test` (optional numeric). Log10 viral load values for determining infectiousness.
+
+* **Legacy (MLE):** `community_risk` (numeric). Additional columns can be mapped as covariates.
+
+
+
+## Method A: RSV/Viral-Load Engine (Bayesian/Stan)
+Use this method if infection is driven by viral load trajectories and seasonality, and you wish to use Bayesian inference.
+
+**Synthetic Simulation and Estimation**
+
 ```{r}
-out1 <- GenSyn(
+library(Household.Transmission.Chain.Data.Analysis)
+seasonal_forcing_list <- readRDS("../inst/extdata/seasonal_forcing_list.rds")
+result_exampleA.1 <- GenSyn(
   n_households = 5,
-  n_runs = 3,
-  Covariates = TRUE, # generate demo covariates
-  Covariates_list = c("Vaccination status"),
-  hh_covariate_cols = "vaccination_status_mode",
   
-  postprocessing = TRUE, # TRUE is default
-  data_summary = FALSE # set TRUE to print per-individual summary
+  engine = "rsv_vl",
+  estimation_method = "stan",
+  seasonal_forcing_list = seasonal_forcing_list,
+
+  stan_chains = 1,
+  stan_iter   = 800,
+  stan_warmup = 400,
+  stan_control = list(adapt_delta = 0.98, max_treedepth = 12),
+  stan_refresh = 25,
+  stan_cores   = 1
 )
 ```
 
-## 2. Estimation from user's own data with `TransmissionChainAnalysis()`
+**Analyzing User Data (Stan)**
+For the Stan engine, you can optionally provide a Viral Load column to inform the infectiousness curves.
 
-If the user already have long-format data, use `TransmissionChainAnalysis()` directly. Below we create a tiny toy dataset that meets the required schema.
+```{r}
+T_max <- 12
+df_person <- rbind(
+  data.frame(
+    hh_id             = "HH1",
+    person_id         = 1:3,
+    role              = c("adult","child","elderly"),
+    infection_time    = c( 2,  4, NA),
+    infectious_start  = c( 3,  6, NA),
+    infectious_end    = c( 8,  9, NA),
+    infection_resolved= c( 9, 10, NA),
+    stringsAsFactors  = FALSE
+  ),
+  data.frame(
+    hh_id             = "HH2",
+    person_id         = 1:3,
+    role              = c("adult","child","elderly"),
+    infection_time    = c( 1,  3, NA),
+    infectious_start  = c( 2,  5, NA),
+    infectious_end    = c( 7,  9, NA),
+    infection_resolved= c( 8, 10, NA),
+    stringsAsFactors  = FALSE
+  )
+)
+
+# Optional list-cols (safe to omit)
+df_person$vl_full_trajectory    <- vector("list", nrow(df_person))
+df_person$viral_loads_test_days <- vector("list", nrow(df_person))
+
+# Flat seasonal forcing for all roles (length must match max_days)
+seasonal_forcing_list <- list(
+  adult   = rep(1, T_max),
+  child   = rep(1, T_max),
+  elderly = rep(1, T_max),
+  toddler = rep(1, T_max)
+)
+
+result_exampleA.2 <- TransmissionChainAnalysis(
+  user_data         = df_person,    # <-- per-person episodes format
+  estimation_method = "stan",
+  print_plots    = FALSE,
+
+  # RSV/VL + Stan knobs
+  seasonal_forcing_list = seasonal_forcing_list,
+  max_days              = T_max,
+
+  # keep Stan light so it finishes quickly
+  stan_chains  = 1,
+  stan_iter    = 300,
+  stan_warmup  = 150,
+  stan_control = list(adapt_delta = 0.98, max_treedepth = 12),
+  stan_init    = "random",
+  stan_refresh = 50,
+  stan_cores   = 1
+)
+```
+
+
+## Method B: Legacy Engine (Maximum Likelihood)
+Use this method if you are modeling binary infection data (Positive/Negative) and want to adjust for specific community or household covariates (e.g., vaccination status).
+
+**Synthetic Simulation & Estimation**
+`GenSyn()` simulates the data and immediately fits the model.
+
+```{r}
+result_exampleB.1 <- GenSyn(
+  n_households = 10,
+  n_runs       = 10,
+  data_summary = TRUE,
+
+  engine = "legacy",
+  estimation_method = "mle"
+)
+```
+
+
+**Analyzing User Data (MLE)**
+
+If you have your own data, use `TransmissionChainAnalysis()`.
+
 ```{r}
 HH = c(rep(1L, 6), rep(2L, 6))
 individual_ID = c(1,1,2,2,3,3, 1,1,2,2,3,3)
-role = c("infant","infant","adult","adult","sibling","sibling", "infant","infant","adult","adult","elder","elder")
-test_date = c(1,8,1,8,1,8, 1,8,1,8,1,8) # day indices
-infection_status = c(0,1,0,0,0,0, 0,0,0,1,0,0) # minimal toy pattern
+role <- c("infant","infant","adult","adult","sibling","sibling",
+          "infant","infant","adult","adult","elder","elder")
+test_date = c(1,8,1,8,1,8, 1,8,1,8,1,8)
+infection_status = c(0,1,0,0,0,0, 0,0,0,1,0,0)
 community_risk = rep(0.001, length(HH))
 
-df <- data.frame(HH, individual_ID, role, test_date, infection_status, community_risk)
-out2 <- TransmissionChainAnalysis(
+df = data.frame(HH, individual_ID, role, test_date, infection_status, community_risk)
+
+result_exampleB.2 <- TransmissionChainAnalysis(
   user_data = df,
-  n_runs = 3, # keep small in vignette
-  postprocessing = TRUE
+  n_runs    = 20,
+  estimation_method = "mle"
 )
 ```
+
+
+## Visualizing Results
+When using `estimation_method = "stan"` (via `GenSyn` or `TransmissionChainAnalysis`), the result object contains a list of `ggplot2` objects.
+
+Available plots (configurable via the `plots` argument):
+
+* `"daily"`: Daily infections by role.
+
+* `"weekly"`: Weekly infections by role.
+
+* `"timeline"`: Infection timeline and and detection.
+
+* `"sar"`: Secondary attack rate vs. index case viral load.

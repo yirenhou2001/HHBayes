@@ -37,62 +37,49 @@ generate_synthetic_data_one(
 )
 }
 \arguments{
-\item{household_id}{Integer. Household identifier used to populate the \code{HH} column.}
+\item{household_id}{Integer; household identifier written to \code{HH}.}
 
-\item{hh.size}{Integer. Household size.}
+\item{hh.size}{Integer; household size.}
 
-\item{tests.per.week}{Integer. Tests per person per week.}
+\item{tests.per.week}{Integer; tests per person per week.}
 
-\item{p.comm.base.infant.fix}{Numeric. Baseline community infection probability for infants per day.}
+\item{p.comm.base.infant.fix}{Numeric; baseline community infection prob/day (infant).}
 
-\item{p.comm.multiplier.sibling, p.comm.multiplier.parent, p.comm.multiplier.elder}{Numeric multipliers relative to the infant baseline for sibling, parent (adult), and elder.}
+\item{p.comm.multiplier.sibling, p.comm.multiplier.parent, p.comm.multiplier.elder}{Numeric; community multipliers by role.}
 
-\item{p.hh.base.infant}{Numeric. Baseline within-household transmission probability per infectious infant contact per day.}
+\item{p.hh.base.infant}{Numeric; baseline within-household infection prob/day (infant source).}
 
-\item{p.hh.multiplier.sibling, p.hh.multiplier.parent, p.hh.multiplier.elder}{Multipliers relative to the infant baseline for sibling, parent (adult), and elder.}
+\item{p.hh.multiplier.sibling, p.hh.multiplier.parent, p.hh.multiplier.elder}{Numeric; within-household multipliers by source role.}
 
-\item{p.imm.base.sibling, p.imm.base.parent, p.imm.base.elder}{Numeric. Baseline immunity probabilities at day 1 by role.}
+\item{p.imm.base.sibling, p.imm.base.parent, p.imm.base.elder}{Numeric; baseline immunity at day 1.}
 
-\item{partial.immunity.infant, partial.immunity.sibling, partial.immunity.parent, partial.immunity.elder}{Numeric. Partial-immunity modifiers by role.}
+\item{partial.immunity.infant, partial.immunity.sibling, partial.immunity.parent, partial.immunity.elder}{Numeric; partial-immunity modifiers by role.}
 
-\item{duration.latent}{Integer. Mean latent period (days).}
+\item{duration.latent}{Integer; mean latent period (days).}
 
-\item{duration.infect.inf}{Integer. Mean infectious duration for infants (days).}
+\item{duration.infect.inf}{Integer; mean infectious duration for infants (days).}
 
-\item{multiplier.dur.sibpar}{Numeric. Infectious-duration multiplier for non-infant roles.}
+\item{multiplier.dur.sibpar}{Numeric; infectious-duration multiplier for non-infants.}
 
-\item{p.detect}{Numeric. Probability that an infection present on a testing day is detected.}
+\item{p.detect}{Numeric; detection probability if infected on a test day.}
 
-\item{amplitude, phase}{Numeric. Seasonality parameters for community risk.}
+\item{amplitude, phase}{Numeric; seasonality parameters for community risk.}
 
-\item{start_date, end_date}{Date. Simulation window.}
+\item{start_date, end_date}{\code{Date}; simulation window.}
 
-\item{Covariates}{Logical. If \code{TRUE}, generate additional covariates.}
+\item{Covariates}{Logical; generate additional covariates.}
 
-\item{Covariates_list}{Character vector. Names of covariates to generate.}
+\item{Covariates_list}{Character; covariate names.}
 
-\item{Covariate_specifications}{List. Optional per-covariate specifications.}
+\item{Covariate_specifications}{List; optional per-covariate specs.}
 }
 \value{
-A data frame with columns:
-\itemize{
-\item \code{HH} household ID
-\item \code{individual_ID} individual index within the household
-\item \code{role} one of "infant", "sibling", "adult", or "elder"
-\item \code{test_date} day index where 1 maps to \code{start_date}
-\item \code{infection_status} 0/1 at the test day
-\item \code{community_risk} community infection intensity on that day
-\item additional covariate columns when \code{Covariates = TRUE}
-}
+Data frame with columns \code{HH}, \code{individual_ID}, \code{role},
+\code{test_date} (1 = \code{start_date}), \code{infection_status},
+\code{community_risk}, and optional covariates.
 }
 \description{
-Simulates testing observations for a single household across a date range
-with community risk using seasonal forcing, within-household transmission,
-adaptive testing, baseline and partial immunity, and optional covariates.
-}
-\examples{
-\dontrun{
-df1 <- generate_synthetic_data_one(1, hh.size = 4, tests.per.week = 2, Covariates = TRUE)
-head(df1)
-}
+Simulates test-day observations for one household over a date window with
+community seasonality, within-household transmission, adaptive testing,
+baseline/partial immunity, and optional covariates.
 }

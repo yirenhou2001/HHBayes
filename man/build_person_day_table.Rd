@@ -2,33 +2,26 @@
 % Please edit documentation in R/utils.R
 \name{build_person_day_table}
 \alias{build_person_day_table}
-\title{Construct long format person day data}
+\title{Construct person-day long data}
 \usage{
 build_person_day_table(dt, tmax, cases_t, covariate_cols = character(0))
 }
 \arguments{
-\item{dt}{data.table. Individual level data with infection or imputation results from \code{\link{infectious_time_imputation}}.}
+\item{dt}{\code{data.table} from \code{\link{infectious_time_imputation}}.}
 
-\item{tmax}{Integer. Maximum day index}
+\item{tmax}{Integer; maximum day index.}
 
-\item{cases_t}{Numeric vector of length \code{tmax + 1}. Community intensity on days 0 to \code{tmax}.}
+\item{cases_t}{Numeric of length \code{tmax + 1}; community intensity for days 0..\code{tmax}.}
 
-\item{covariate_cols}{Character vector. Names of row level covariates to copy.}
+\item{covariate_cols}{Character; names of covariates to carry (scalars or day series).}
 }
 \value{
-A long format \code{data.table} with columns
-\code{agegrp2}, \code{agegrp3}, \code{agegrp4},
-\code{n_inf}, \code{n_inf_infant}, \code{n_inf_sibling}, \code{n_inf_adult}, \code{n_inf_elder},
-\code{cases}, \code{event}, \code{ID_indiv}, \code{ID_hh}, \code{day}, and the requested covariates.
+\code{data.table} with columns:
+\code{agegrp2}, \code{agegrp3}, \code{agegrp4}, \code{n_inf},
+\code{n_inf_infant}, \code{n_inf_sibling}, \code{n_inf_adult}, \code{n_inf_elder},
+\code{cases}, \code{event}, \code{ID_indiv}, \code{ID_hh}, \code{day}, and requested covariates.
 }
 \description{
-Builds a person day table for likelihood based parameter estimation by expanding
-individual level timelines into daily observations and computing same household
-infectious counts by infector role.
-}
-\examples{
-\dontrun{
-long_dt <- build_person_day_table(imputed, tmax = 200, cases_t = rep(0.001, 201))
-head(long_dt)
-}
+Expands individual timelines into daily rows and computes within-household
+infectious counts by infector role for likelihood-based estimation.
 }
