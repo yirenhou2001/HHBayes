@@ -1,5 +1,4 @@
 library(devtools)
-library(tidyverse)
 #library(pbapply)
 
 remove.packages("Household.Transmission.Chain.Data.Analysis")
@@ -36,6 +35,8 @@ result_example2$postprocessing
 print(result_example2)
 
 
+
+library(tidyverse)
 seasonal_forcing_list <- readRDS("seasonal_forcing_list.rds")
 result_example3 <- GenSyn(
   n_households = 5,
@@ -45,6 +46,7 @@ result_example3 <- GenSyn(
   estimation_method = "stan",
   seasonal_forcing_list = seasonal_forcing_list,
 
+  stan_file    = "../inst/stan/HH_parameter_estimation2.stan",
   stan_chains = 1,
   stan_iter   = 800,
   stan_warmup = 400,
@@ -127,6 +129,7 @@ result_example5 <- TransmissionChainAnalysis(
 
   # RSV/VL + Stan knobs
   seasonal_forcing_list = seasonal_forcing_list,
+  stan_file    = "../inst/stan/HH_parameter_estimation2.stan",
   max_days              = T_max,
 
   # keep Stan light so it finishes quickly

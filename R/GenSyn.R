@@ -162,7 +162,7 @@ GenSyn <- function(
     max_days              = 365,
 
     # ---- Stan controls (RSV/VL + Stan) ----
-    stan_file    = "../inst/stan/HH_parameter_estimation2.stan",
+    stan_file    = "HH_parameter_estimation2.stan",
     stan_chains  = 1,
     stan_iter    = 100,
     stan_warmup  = 100,

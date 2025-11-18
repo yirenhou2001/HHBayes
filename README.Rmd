@@ -50,6 +50,7 @@ result_example1 <- GenSyn(
 
   engine = "rsv_vl",
   estimation_method = "stan",
+  stan_file    = "HH_parameter_estimation2.stan",
   seasonal_forcing_list = seasonal_forcing_list,
 
   stan_chains = 1,

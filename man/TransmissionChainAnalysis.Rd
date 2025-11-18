@@ -36,7 +36,7 @@ TransmissionChainAnalysis(
   true_values = NULL,
   seasonal_forcing_list = NULL,
   max_days = 365,
-  stan_file = "../inst/stan/HH_parameter_estimation2.stan",
+  stan_file = "HH_parameter_estimation2.stan",
   stan_chains = 1,
   stan_iter = 100,
   stan_warmup = 100,

@@ -74,6 +74,7 @@ result_exampleA.1 <- GenSyn(
   engine = "rsv_vl",
   estimation_method = "stan",
   seasonal_forcing_list = seasonal_forcing_list,
+  stan_file    = "../inst/stan/HH_parameter_estimation2.stan",
 
   stan_chains = 1,
   stan_iter   = 800,
@@ -131,6 +132,7 @@ result_exampleA.2 <- TransmissionChainAnalysis(
 
   # RSV/VL + Stan knobs
   seasonal_forcing_list = seasonal_forcing_list,
+  stan_file    = "../inst/stan/HH_parameter_estimation2.stan",
   max_days              = T_max,
 
   # keep Stan light so it finishes quickly

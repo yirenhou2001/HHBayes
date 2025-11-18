@@ -502,10 +502,18 @@ generated quantities {
     if (!is.null(built)) return(list(file = NULL, code = built))
   }
 
-  # (E) As a last resort, use the tiny builtin
-  list(file = NULL, code = .builtin_stan_models()[["household_min"]])
+  # (E) CHANGED: Stop with a clear error instead of using a fallback
+  # This prevents the "variable y does not exist" error
+  if (is.null(stan_file)) {
+    stop("No 'stan_file' or 'stan_code' was provided.")
+  } else {
+    stop(paste0(
+      "Stan file not found: '", stan_file, "'\n",
+      "Current working directory: ", getwd(), "\n",
+      "Please provide the full absolute path or check your file name."
+    ))
+  }
 }
-
 
 #' Build a role-specific seasonal forcing matrix
 #'

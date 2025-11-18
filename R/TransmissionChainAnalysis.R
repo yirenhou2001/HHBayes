@@ -125,7 +125,7 @@ TransmissionChainAnalysis <- function(
     max_days = 365,
 
     # Stan controls
-    stan_file    = "../inst/stan/HH_parameter_estimation2.stan",
+    stan_file    = "HH_parameter_estimation2.stan",
     stan_chains = 1, stan_iter = 100, stan_warmup = 100,
     stan_control = list(adapt_delta = 0.99, max_treedepth = 20),
     stan_init = "random", stan_refresh = 50, stan_cores = 4,
