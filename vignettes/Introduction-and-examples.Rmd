@@ -146,7 +146,7 @@ result_exampleA.2 <- TransmissionChainAnalysis(
 
 
 ## Method B: Legacy Engine (Maximum Likelihood)
-Use this method if you are modeling binary infection data (Positive/Negative) and want to adjust for specific community or household covariates (e.g., vaccination status).
+Use this method if you are modeling binary infection data (positive/negative) and want to adjust for specific community or household covariates (e.g., vaccination status).
 
 **Synthetic Simulation & Estimation**
 `GenSyn()` simulates the data and immediately fits the model.
@@ -195,6 +195,6 @@ Available plots (configurable via the `plots` argument):
 
 * `"weekly"`: Weekly infections by role.
 
-* `"timeline"`: Infection timeline and and detection.
+* `"timeline"`: Infection timeline and detection.
 
 * `"sar"`: Secondary attack rate vs. index case viral load.

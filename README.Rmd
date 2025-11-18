@@ -26,7 +26,7 @@ Use this to generate synthetic data and run the full estimation pipeline end-to-
 
 * **Estimates** parameters using the generated data.
 
-* **Validates** results by reporting bias and Relative bias in the post-processing step.
+* **Validates** results by reporting bias and relative bias in the post-processing step.
 
 2. `TransmissionChainAnalysis()`: **User data analysis**
 Use this to estimate transmission parameters from your own observational data with similar functionalities with `GenSyn()`.
@@ -161,7 +161,7 @@ Both main functions return a result object containing:
 
     + MLE: Bias, relative bias, mean estimate, and standard error across runs.
 
-    + Stan: Posterior Mean, standard deviation, and 95% credible intervals for role-specific susceptibility (`phi`) and infectivity (`kappa`).
+    + Stan: Posterior mean, standard deviation, and 95% credible intervals for role-specific susceptibility (`phi`) and infectivity (`kappa`).
 
 * `$plot_list`: A list of `ggplot2` objects (if requested).
 
