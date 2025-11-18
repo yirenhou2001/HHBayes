@@ -40,7 +40,7 @@ library(Household.Transmission.Chain.Data.Analysis)
 ## Expected Data Format
 Both functions utilize **long-format** rows of test observations.
 
-# Required Columns:
+## Required Columns:
 
 * `HH`: Household ID (integer or character)
 
@@ -52,7 +52,7 @@ Both functions utilize **long-format** rows of test observations.
 
 * `infection_status`: 0/1 binary indicator (1 = infected/detected).
 
-# Engine-Specific Columns:
+## Engine-Specific Columns:
 
 * **RSV (Stan):** `vl_test` (optional numeric). Log10 viral load values for determining infectiousness.
 

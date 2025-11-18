@@ -7,7 +7,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Household.Transmission.Chain.Data.Analysis: Household transmission chain simulation, estimation, and visualization
+# Household.Transmission.Chain.Data.Analysis: Household transmission chain simulation, estimation, and visualization
 
 This package provides a streamlined pipeline to simulate household infection dynamics, estimate transmission parameters, and visualize epidemic timelines. It supports two distinct modeling engines:
 
@@ -33,7 +33,7 @@ Use this to estimate transmission parameters from your own observational data wi
 
 ## Quick start
 
-# Method A: RSV/VL Engine (Bayesian approach)
+## Method A: RSV/VL Engine (Bayesian approach)
 
 Typically runs faster than Method B. 
 
@@ -60,7 +60,7 @@ result_example3 <- GenSyn(
 )
 ```
 
-# Method B: Legacy Engine (Maximum Likelihood)
+## Method B: Legacy Engine (Maximum Likelihood)
 
 Best for standard binary infection data (Positive/Negative).
 
@@ -138,14 +138,14 @@ result_example3 <- TransmissionChainAnalysis(
 
 For `TransmissionChainAnalysis()`, `user_data` should be a long-format data frame containing at least:
 
-Column               Description    
--------------------- -----------------------------------
-`HH`/`hh_id`         Unique Household Identifier
-`individual_ID`      Individual ID within the household
-role                 Family role (e.g., "infant", "child", "adult", "elder")
-test_date            Integer day of the test (or Date object)
-infection_status     Binary (0/1) or logical indicating infection
-community_risk       Numeric daily community risk intensity
+| Column           | Description                                   |
+|------------------|-----------------------------------------------|
+| `HH`/`hh_id`     | Unique household identifier                   |
+| `individual_ID`  | Individual ID within the household            |
+| `role`           | Family role (e.g., "infant","child","adult","elder") |
+| `test_date`      | Integer day of the test (or Date object)      |
+| `infection_status` | Binary (0/1) or logical indicating infection |
+| `community_risk` | Numeric daily community risk intensity        |
 
 ## Outputs
 
