@@ -4,3 +4,4 @@
 ^building&testing$
 ^.*\.RData$
 ^README\.Rmd$
+^\.github$
