@@ -1,5 +1,9 @@
-# Household.Transmission.Chain.Data.Analysis
-### Household transmission chain simulation, estimation, and visualization
+Household.Transmission.Chain.Data.Analysis
+================
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/yirenhou2001/Household.Transmission.Chain.Data.Analysis/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yirenhou2001/Household.Transmission.Chain.Data.Analysis/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
 
 This package provides a streamlined pipeline to simulate household infection dynamics, estimate transmission parameters, and visualize epidemic timelines. It supports two distinct modeling engines:
 

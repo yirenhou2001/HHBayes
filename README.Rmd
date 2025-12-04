@@ -2,7 +2,10 @@
 Title: "README"
 output: github_document
 ---
-
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/yirenhou2001/Household.Transmission.Chain.Data.Analysis/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yirenhou2001/Household.Transmission.Chain.Data.Analysis/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+  
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
