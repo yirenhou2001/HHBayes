@@ -170,14 +170,3 @@ Transmission probability incorporates:
 - Household size scaling
 - Contact structure within households
 
-## Citation
-
-If you use this package in your research, please cite:
-
-```
-@software{HouseholdTransmission,
-  author = {Hou, Yiren},
-  title = {Household.Transmission.Chain.Data.Analysis},
-  url = {https://github.com/yirenhou2001/Household.Transmission.Chain.Data.Analysis}
-}
-```

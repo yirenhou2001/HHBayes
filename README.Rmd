@@ -49,9 +49,9 @@ result <- GenSyn(
   max_days     = 365,
   
   # Stan sampling controls
-  stan_chains  = 4,
-  stan_iter    = 2000,
-  stan_warmup  = 1000,
+  stan_chains  = 2,
+  stan_iter    = 100,
+  stan_warmup  = 10,
   stan_control = list(adapt_delta = 0.99, max_treedepth = 20),
   stan_cores   = 4
 )
@@ -124,20 +124,26 @@ result <- TransmissionChainAnalysis(
 
 Both main functions return a result object containing:
 
-* **`$results`**: Raw pipeline output including `fit` (Stan object) and `posterior_summary`
+- **`$results`**: Raw pipeline output including:
+  - `fit`: The `stanfit` object
+  - `stan_data`: Data passed to Stan
+  - `posterior_summary`: Tidy summary of posteriors
 
-* **`$postprocessing`**: Clean summary table with posterior mean, SD, and 95% credible intervals for role-specific susceptibility (`phi`) and infectivity (`kappa`)
+- **`$postprocessing`**: Clean summary table with posterior mean, SD, and 95% credible intervals for:
+  - Role-specific susceptibility (`phi`)
+  - Role-specific infectivity (`kappa`)
+  - Latent period mean (`latent_mean`)
 
-* **`$plot_list`**: Named list of `ggplot2` objects (when requested)
+- **`$plot_list`**: Named list of `ggplot2` objects (when requested)
 
 ## Visualization
 
 Built-in plotting capabilities are available via the `plots` argument:
 
-* **`"daily"`**: Daily infections by role
-* **`"weekly"`**: Weekly infections by role  
-* **`"timeline"`**: Per-household infection and detection timelines
-* **`"sar"`**: Secondary attack rate by index case viral load
+- **`"daily"`**: Daily infections by role
+- **`"weekly"`**: Weekly infections by role  
+- **`"timeline"`**: Per-household infection and detection timelines
+- **`"sar"`**: Secondary attack rate by index case viral load
 
 ```{r}
 # Generate all plots
@@ -146,4 +152,23 @@ result <- GenSyn(
   plots = c("daily", "weekly", "timeline", "sar"),
   print_plots = TRUE
 )
+
+# Access individual plots
+result$plot_list$daily
+result$plot_list$timeline
 ```
+
+
+## Model Details
+
+The Stan model estimates:
+
+- **`phi[role]`**: Role-specific susceptibility multipliers
+- **`kappa[role]`**: Role-specific infectivity multipliers  
+- **`latent_mean`**: Mean latent period (soft-gate transition to infectiousness)
+
+Transmission probability incorporates:
+- Viral load dynamics using a double-exponential trajectory model
+- Seasonal forcing patterns
+- Household size scaling
+- Contact structure within households
