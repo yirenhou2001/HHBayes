@@ -96,7 +96,7 @@ result <- TransmissionChainAnalysis(
 
 ## Input Data Formats
 
-### Per-person episode table (recommended) as it auto-generates placeholders if `vl_full_trajectory` is missing
+### Per-person episode table (recommended) (as it auto-generates placeholders if `vl_full_trajectory` specification is missing)
 
 | Column             | Description                                    |
 |--------------------|------------------------------------------------|
@@ -108,7 +108,7 @@ result <- TransmissionChainAnalysis(
 | `infectious_end`   | Day infectiousness ends                        |
 | `infection_resolved` | Day infection resolves                       |
 
-### Long-format testing table as it uses `vl_source` parameter to decide
+### Long-format testing table (uses `vl_source` specification to decide the viral load source)
 
 | Column             | Description                                    |
 |--------------------|------------------------------------------------|
