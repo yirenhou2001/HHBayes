@@ -33,7 +33,6 @@
 #'
 #' @return A list with \code{hh_df} (stacked data frame), \code{households}
 #'   (per-household list), and \code{diagnostic_df} (long testing records).
-#' @export
 simulate_households <- function(
     n_households,
     start_date = as.Date("2024-01-01"),
@@ -540,6 +539,7 @@ simulate_multiple_households_comm <- function(
 #' @param obj Mixed household representation.
 #' @return List of per-household data frames.
 #' @keywords internal
+#' @noRd
 .normalize_households_input <- function(obj) {
   hh_attr <- attr(obj, "households", exact = TRUE)
   if (!is.null(hh_attr)) {

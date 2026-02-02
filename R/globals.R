@@ -12,7 +12,7 @@ utils::globalVariables(c(
 
   # Household/person identifiers and roles
   "HH", "hh_id", "person_id", "role",
-  "ID_hh", "ID_indiv", "individual_ID", "indiv.index",
+  "individual_ID",
 
   # Time/day/test columns
   "day", "day_index", "test_date", "sample_date",
@@ -22,14 +22,6 @@ utils::globalVariables(c(
   "infection_resolved", "infection_status",
   "detection_time",
   "infected", "is_index",
-
-  # Derived infection window / summary variables (from summarize_individuals)
-  "inf_date", "inf_start_date", "inf_end_date",
-  "inf_win_start", "inf_win_end",
-  "T_FP_date", "T_LP_date",
-  "infection.detected.start", "infection.detected.end",
-  "infection.infectious.day",
-  "last_neg_date", "last_negative",
 
   # Testing result fields
   "test_result", "pcr_sample",
@@ -41,8 +33,5 @@ utils::globalVariables(c(
   "if_infection", "n_infections", "n_total", "n_infected", "sar",
 
   # Viral load / plotting fields
-  "index_vl", "vl_category", "event_type", "vl_test",
-
-  # Covariate bins used in running_parameter_estimation (from check output)
-  "age_cat", "agegrp2", "agegrp3", "agegrp4"
+  "index_vl", "vl_category", "event_type", "vl_test"
 ))

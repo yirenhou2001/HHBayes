@@ -245,7 +245,6 @@ prepare_stan_data <- function(raw_data, seasonal_forcing_list = NULL, viral_test
 #' @param g_peak_day,g_width Numeric; infectivity profile parameters.
 #'
 #' @return Named list for Stan.
-#' @export
 build_stan_household_arrays <- function(households, T_max = 365L, seasonal_forcing_list = NULL,
                                         alpha_comm_by_role = 5e-3, beta1 = 0.2, beta2 = 0.6, V_ref = 1e3,
                                         reference_phi = 1, reference_kappa = 1, g_peak_day = 2, g_width = 4) {
@@ -389,7 +388,6 @@ run_household_stan <- function(stan_data, stan_file = "model.stan", chains = 4, 
 #'
 #' @param fit A \code{stanfit} object.
 #' @return A data frame with posterior summaries.
-#' @export
 postprocess_stan_fit <- function(fit) {
   s <- tryCatch(rstan::summary(fit)$summary, error = function(e) NULL)
   if (is.null(s) || !nrow(s)) return(data.frame(Parameter = character()))

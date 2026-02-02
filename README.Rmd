@@ -44,7 +44,7 @@ seasonal_forcing_list <- list(
 
 result <- GenSyn(
   n_households = 50,
-  print_plots  = FALSE,
+  print_plots  = TRUE,
   seasonal_forcing_list = seasonal_forcing_list,
   max_days     = 365,
   

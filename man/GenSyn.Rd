@@ -6,8 +6,8 @@
 \usage{
 GenSyn(
   n_households = 50,
-  print_plots = TRUE,
   plots = c("daily", "weekly", "timeline", "sar"),
+  print_plots = FALSE,
   index_vl_column = "vl_test",
   start_date = as.Date("2024-01-01"),
   end_date = as.Date("2024-12-31"),
@@ -53,9 +53,9 @@ GenSyn(
 \arguments{
 \item{n_households}{Integer; number of households to simulate.}
 
-\item{print_plots}{Logical; print plots if produced.}
-
 \item{plots}{Character vector of plot names (\code{"daily"}, \code{"weekly"}, \code{"sar"}, \code{"timeline"}) or \code{"all"}.}
+
+\item{print_plots}{Logical; print plots if \code{TRUE}.}
 
 \item{index_vl_column}{Character; viral-load column name for plotting (default \code{"vl_test"}).}
 

@@ -4,8 +4,8 @@
 #' household data, fit via Bayesian Stan, and assemble a \code{"GenSynResult"}.
 #'
 #' @param n_households Integer; number of households to simulate.
-#' @param print_plots Logical; print plots if produced.
 #' @param plots Character vector of plot names (\code{"daily"}, \code{"weekly"}, \code{"sar"}, \code{"timeline"}) or \code{"all"}.
+#' @param print_plots Logical; print plots if \code{TRUE}.
 #' @param index_vl_column Character; viral-load column name for plotting (default \code{"vl_test"}).
 #' @param start_date,end_date \code{Date}; study window.
 #' @param seasonal_forcing_list Optional named list of role vectors; seasonal forcing.
@@ -56,8 +56,8 @@
 #' @export
 GenSyn <- function(
     n_households       = 50,
-    print_plots        = TRUE,
     plots              = c("daily","weekly","timeline","sar"),
+    print_plots        = FALSE,
     index_vl_column    = "vl_test",
 
     # Study window
@@ -185,6 +185,20 @@ GenSyn <- function(
 #' @param x A \code{GenSynResult} object.
 #' @param ... Unused.
 #' @return \code{x}, invisibly.
+#'
+#' @examples
+#' \dontrun{
+#' # Simulate and estimate
+#' seasonal_forcing_list <- list(
+#'   adult=rep(0.1,365), child=rep(0.1,365), elderly=rep(0.1,365), toddler=rep(0.1,365)
+#' )
+#' fit <- GenSyn(
+#'   n_households=50,
+#'   seasonal_forcing_list=seasonal_forcing_list, max_days=365,
+#'   stan_chains=4, stan_iter=2000, stan_warmup=1000, stan_cores=4
+#' )
+#' print(fit)
+#' }
 #' @exportS3Method print GenSynResult
 print.GenSynResult <- function(x, ...) {
   cat("GenSyn result\n\n")

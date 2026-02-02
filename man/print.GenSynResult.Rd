@@ -17,3 +17,17 @@
 \description{
 Print method for \code{GenSynResult}
 }
+\examples{
+\dontrun{
+# Simulate and estimate
+seasonal_forcing_list <- list(
+  adult=rep(0.1,365), child=rep(0.1,365), elderly=rep(0.1,365), toddler=rep(0.1,365)
+)
+fit <- GenSyn(
+  n_households=50,
+  seasonal_forcing_list=seasonal_forcing_list, max_days=365,
+  stan_chains=4, stan_iter=2000, stan_warmup=1000, stan_cores=4
+)
+print(fit)
+}
+}

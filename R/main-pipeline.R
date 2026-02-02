@@ -35,7 +35,6 @@
 #'   \code{posterior_summary}, and \code{diagnostic_df}.
 #'
 #' @seealso \code{\link{GenSyn}}
-#' @export
 main_parameter_estimation_pipeline <- function(
     user_data = NULL,
     synthetic_data = TRUE,

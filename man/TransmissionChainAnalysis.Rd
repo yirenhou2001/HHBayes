@@ -34,7 +34,7 @@ or episode data (see Details for accepted shapes). Lists are row-bound internall
 \item{plots}{Character vector of plot names to build when compatible data are present:
 \code{c("daily","weekly","timeline","sar")} or \code{"all"}.}
 
-\item{print_plots}{Logical; print plots if produced.}
+\item{print_plots}{Logical; print plots if \code{TRUE}.}
 
 \item{index_vl_column}{Optional character; name of the viral-load column used by SAR-by-VL plotting. Defaults to \code{"vl_test"} when present.}
 

@@ -7,6 +7,7 @@
 #'
 #' @return A \code{ggplot} object.
 #' @keywords internal
+#' @noRd
 .rsv_plot_daily <- function(households) {
   df <- do.call(rbind, households)
   df %>%
@@ -30,6 +31,7 @@
 #'
 #' @return A \code{ggplot} object.
 #' @keywords internal
+#' @noRd
 .rsv_plot_weekly <- function(households) {
   df <- do.call(rbind, households)
   df %>%
@@ -55,6 +57,7 @@
 #'
 #' @return A \code{ggplot} object.
 #' @keywords internal
+#' @noRd
 .rsv_plot_timeline <- function(households, max_hh = 15) {
   df  <- do.call(rbind, households)
   sel <- unique(df$hh_id)[seq_len(min(length(unique(df$hh_id)), max_hh))]
@@ -89,6 +92,7 @@
 #'
 #' @return A \code{ggplot} object.
 #' @keywords internal
+#' @noRd
 .rsv_plot_sar_by_index_vl <- function(households) {
   df <- do.call(rbind, households)
   hh_sum <- df %>%
@@ -141,6 +145,7 @@
 #' @return Named list of \code{ggplot} objects for the requested plots
 #'   (a subset of \code{daily}, \code{weekly}, \code{timeline}, \code{sar}).
 #' @keywords internal
+#' @noRd
 .make_transmission_plots <- function(results,
                                      which = c("daily","weekly","sar","timeline"),
                                      print = TRUE,
