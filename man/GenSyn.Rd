@@ -57,7 +57,7 @@ GenSyn(
 
 \item{print_plots}{Logical; print plots if \code{TRUE}.}
 
-\item{index_vl_column}{Character; viral-load column name for plotting (default \code{"vl_test"}).}
+\item{index_vl_column}{Character; viral-load (VL) column name for plotting (default \code{"vl_test"}).}
 
 \item{start_date, end_date}{\code{Date}; study window.}
 

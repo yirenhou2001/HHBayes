@@ -6,10 +6,7 @@
 #'
 #' @param user_data A data.frame or a list of data.frames describing household testing
 #'   or episode data (see Details for accepted shapes). Lists are row-bound internally.
-#' @param plots Character vector of plot names to build when compatible data are present:
-#'   \code{c("daily","weekly","timeline","sar")} or \code{"all"}.
-#' @param print_plots Logical; print plots if \code{TRUE}.
-#' @param index_vl_column Optional character; name of the viral-load column used by SAR-by-VL plotting. Defaults to \code{"vl_test"} when present.
+#' @param index_vl_column Optional character; name of the viral-load (VL) column used by SAR-by-VL plotting. Defaults to \code{"vl_test"} when present.
 #' @param start_date,end_date \code{Date} study window.
 #' @param seasonal_forcing_list Optional named list of role vectors for forcing.
 #' @param max_days Integer; maximum modeled days.
@@ -69,9 +66,6 @@
 #' @export
 TransmissionChainAnalysis <- function(
     user_data,
-
-    plots          = c("daily","weekly","timeline","sar"),
-    print_plots    = FALSE,
     index_vl_column = "vl_test",
 
     # Analysis window
@@ -174,9 +168,7 @@ TransmissionChainAnalysis <- function(
       fit               = fit,
       posterior_summary = posterior_summary
     ),
-    postprocessing = postprocessing_tbl,
-    plots          = plots,
-    plot_list      = list()
+    postprocessing = postprocessing_tbl
   )
   class(out) <- "TransmissionChainResult"
   return(out)

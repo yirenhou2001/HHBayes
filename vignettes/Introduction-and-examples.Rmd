@@ -50,7 +50,6 @@ seasonal_forcing <- list(
 
 # Run simulation + estimation
 result <- GenSyn(
-
   n_households          = 50,
   seasonal_forcing_list = seasonal_forcing,
   max_days              = 365,
@@ -99,8 +98,8 @@ result <- GenSyn(
   
   # Stan settings
   stan_chains  = 4,
-  stan_iter    = 2000,
-  stan_warmup  = 1000,
+  stan_iter    = 1000,
+  stan_warmup  = 10,
   stan_control = list(adapt_delta = 0.99, max_treedepth = 15),
   stan_cores   = 4,
   
@@ -120,12 +119,6 @@ result$postprocessing
 
 # Full Stan fit object (for advanced diagnostics)
 fit <- result$results$fit
-
-# Check convergence
-rstan::check_hmc_diagnostics(fit)
-
-# Extract specific parameters
-rstan::summary(fit, pars = c("beta1", "beta2", "latent_mean"))$summary
 ```
 
 ---
@@ -229,11 +222,18 @@ result <- TransmissionChainAnalysis(
   user_data = test_data,
   seasonal_forcing_list = seasonal_forcing_list,
   max_days = T_max,
-  stan_chains = 2,
-  stan_iter = 1000,
-  stan_warmup = 500
+  
+  # Specify viral load (vl) source when supplying your own data
+  vl_source = "none",
+
+  stan_chains  = 3,
+  stan_iter    = 1000,
+  stan_warmup  = 100,
+  stan_control = list(adapt_delta = 0.95, max_treedepth = 12),
+  stan_cores   = 3
 )
 
+# View posterior estimates
 print(result$postprocessing)
 ```
 

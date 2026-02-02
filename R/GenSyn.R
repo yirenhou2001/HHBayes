@@ -6,7 +6,7 @@
 #' @param n_households Integer; number of households to simulate.
 #' @param plots Character vector of plot names (\code{"daily"}, \code{"weekly"}, \code{"sar"}, \code{"timeline"}) or \code{"all"}.
 #' @param print_plots Logical; print plots if \code{TRUE}.
-#' @param index_vl_column Character; viral-load column name for plotting (default \code{"vl_test"}).
+#' @param index_vl_column Character; viral-load (VL) column name for plotting (default \code{"vl_test"}).
 #' @param start_date,end_date \code{Date}; study window.
 #' @param seasonal_forcing_list Optional named list of role vectors; seasonal forcing.
 #' @param max_days Integer; maximum simulated days.

@@ -5,7 +5,7 @@ Household.Transmission.Chain.Data.Analysis
 [![R-CMD-check](https://github.com/yirenhou2001/Household.Transmission.Chain.Data.Analysis/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yirenhou2001/Household.Transmission.Chain.Data.Analysis/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-This package provides a streamlined pipeline to simulate household infection dynamics, estimate transmission parameters, and visualize epidemic timelines. It uses a Bayesian approach with `rstan` that models transmission probability as a function of viral load, seasonality, and role-specific susceptibility/infectivity.
+This package provides a streamlined pipeline to simulate household infection dynamics, estimate transmission parameters, and visualize epidemic timelines. It uses a Bayesian approach with `rstan` that models transmission probability as a function of viral load (VL), seasonality, and role-specific susceptibility/infectivity.
 
 ## Core Workflow
 
@@ -42,7 +42,7 @@ seasonal_forcing_list <- list(
 
 result <- GenSyn(
   n_households = 50,
-  print_plots  = FALSE,
+  print_plots  = TRUE,
   seasonal_forcing_list = seasonal_forcing_list,
   max_days     = 365,
   
@@ -96,7 +96,7 @@ result <- TransmissionChainAnalysis(
 
 ## Input Data Formats
 
-### Per-person episode table (recommended)
+### Per-person episode table (recommended) as it auto-generates placeholders if `vl_full_trajectory` is missing
 
 | Column             | Description                                    |
 |--------------------|------------------------------------------------|
@@ -108,7 +108,7 @@ result <- TransmissionChainAnalysis(
 | `infectious_end`   | Day infectiousness ends                        |
 | `infection_resolved` | Day infection resolves                       |
 
-### Long-format testing table
+### Long-format testing table as it uses `vl_source` parameter to decide
 
 | Column             | Description                                    |
 |--------------------|------------------------------------------------|
@@ -136,7 +136,7 @@ Both main functions return a result object containing:
 
 ## Visualization
 
-Built-in plotting capabilities are available via the `plots` argument:
+Built-in plotting capabilities are available via the `plots` argument for **`GenSyn()`**:
 
 - **`"daily"`**: Daily infections by role
 - **`"weekly"`**: Weekly infections by role  
@@ -153,7 +153,9 @@ result <- GenSyn(
 
 # Access individual plots
 result$plot_list$daily
+result$plot_list$weekly
 result$plot_list$timeline
+result$plot_list$sar
 ```
 
 ## Model Details

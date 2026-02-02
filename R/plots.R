@@ -9,7 +9,19 @@
 #' @keywords internal
 #' @noRd
 .rsv_plot_daily <- function(households) {
-  df <- do.call(rbind, households)
+  # Filter out empty households
+  households <- Filter(function(hh) is.data.frame(hh) && nrow(hh) > 0, households)
+
+  if (length(households) == 0) {
+    stop("No valid households with data to plot.", call. = FALSE)
+  }
+
+  df <- dplyr::bind_rows(households)
+
+  if (!all(c("role","infection_time") %in% names(df))) {
+    stop("Daily plot needs columns: role, infection_time.", call. = FALSE)
+  }
+
   df %>%
     dplyr::mutate(if_infection = !is.na(infection_time)) %>%
     dplyr::group_by(role, day = infection_time) %>%
@@ -33,7 +45,19 @@
 #' @keywords internal
 #' @noRd
 .rsv_plot_weekly <- function(households) {
-  df <- do.call(rbind, households)
+  # Filter out empty households
+  households <- Filter(function(hh) is.data.frame(hh) && nrow(hh) > 0, households)
+
+  if (length(households) == 0) {
+    stop("No valid households with data to plot.", call. = FALSE)
+  }
+
+  df <- dplyr::bind_rows(households)
+
+  if (!all(c("role","infection_time") %in% names(df))) {
+    stop("Weekly plot needs columns: role, infection_time.", call. = FALSE)
+  }
+
   df %>%
     dplyr::filter(!is.na(infection_time)) %>%
     dplyr::mutate(week = floor(infection_time/7)) %>%
@@ -44,7 +68,6 @@
                   title = "Weekly new infections by age group") +
     ggplot2::theme_classic(base_size = 14)
 }
-
 
 #' Timeline plot of household epidemics (RSV/VL simulator)
 #'
@@ -59,7 +82,20 @@
 #' @keywords internal
 #' @noRd
 .rsv_plot_timeline <- function(households, max_hh = 15) {
-  df  <- do.call(rbind, households)
+  # Filter out empty households
+  households <- Filter(function(hh) is.data.frame(hh) && nrow(hh) > 0, households)
+
+  if (length(households) == 0) {
+    stop("No valid households with data to plot.", call. = FALSE)
+  }
+
+  df <- dplyr::bind_rows(households)
+
+  need <- c("hh_id","person_id","role","infection_time","detection_time")
+  if (!all(need %in% names(df))) {
+    stop("Timeline plot needs columns: hh_id, person_id, role, infection_time, detection_time.", call. = FALSE)
+  }
+
   sel <- unique(df$hh_id)[seq_len(min(length(unique(df$hh_id)), max_hh))]
   tl  <- df %>%
     dplyr::filter(hh_id %in% sel) %>%
@@ -73,8 +109,8 @@
     ggplot2::facet_wrap(~ hh_id, scales = "free_y") +
     ggplot2::scale_color_manual(
       name   = "Event",
-      values = c(detection_time = "#1f77b4",  # blue
-                 infection_time  = "#d62728") # red
+      values = c(detection_time = "#1f77b4",
+                 infection_time  = "#d62728")
     ) +
     ggplot2::labs(x = "Day", y = "Person ID", title = "Household Epidemic Timelines") +
     ggplot2::theme_bw(base_size = 12)
@@ -94,36 +130,100 @@
 #' @keywords internal
 #' @noRd
 .rsv_plot_sar_by_index_vl <- function(households) {
-  df <- do.call(rbind, households)
+  # Filter out empty or invalid households upfront
+  households <- Filter(function(hh) {
+    is.data.frame(hh) && nrow(hh) > 0 && "hh_id" %in% names(hh)
+  }, households)
+
+  if (length(households) == 0) {
+    stop("No valid households with data to plot.", call. = FALSE)
+  }
+
+  df <- dplyr::bind_rows(households)
+
+  need <- c("hh_id","infection_time","detection_time")
+  if (!all(need %in% names(df))) {
+    stop("SAR plot needs columns: hh_id, infection_time, detection_time.", call. = FALSE)
+  }
+
   hh_sum <- df %>%
     dplyr::group_by(hh_id) %>%
-    dplyr::summarize(n_total = dplyr::n(),
-                     n_infected = sum(!is.na(infection_time)),
-                     sar = ifelse(n_total > 1, (n_infected - 1)/(n_total - 1), NA_real_),
-                     .groups = "drop") %>%
+    dplyr::summarize(
+      n_total = dplyr::n(),
+      n_infected = sum(!is.na(infection_time)),
+      sar = ifelse(n_total > 1, (n_infected - 1)/(n_total - 1), NA_real_),
+      .groups = "drop"
+    ) %>%
     dplyr::mutate(sar = ifelse(sar < 0, NA, sar))
 
+  # Safer extraction of hh_id from each household
+  get_hh_id_safe <- function(hh) {
+    if (!is.data.frame(hh) || nrow(hh) == 0 || !("hh_id" %in% names(hh))) {
+      return(NA_character_)
+    }
+    id <- unique(hh$hh_id)
+    if (length(id) == 0) return(NA_character_)
+    as.character(id[1])
+  }
+
   get_index_vl <- function(hh) {
+    # Validate input
+    if (!is.data.frame(hh) || nrow(hh) == 0) return(NA_real_)
+    if (!("viral_loads_test_days" %in% names(hh))) return(NA_real_)
+    if (!("infection_time" %in% names(hh))) return(NA_real_)
     if (all(is.na(hh$infection_time))) return(NA_real_)
+
     tmin <- min(hh$infection_time, na.rm = TRUE)
     idx  <- which(hh$infection_time == tmin)[1]
-    vl   <- hh$viral_loads_test_days[[idx]]
+
+    if (is.na(idx)) return(NA_real_)
+
+    # Defensive: ensure list-column exists for that person
+    vllist <- hh$viral_loads_test_days
+    if (length(vllist) < idx || is.null(vllist[[idx]])) return(NA_real_)
+
+    vl   <- vllist[[idx]]
     tdet <- suppressWarnings(min(hh$detection_time, na.rm = TRUE))
     if (!is.finite(tdet) || length(vl) == 0) return(NA_real_)
+
     as.numeric(vl[as.character(tdet)])
   }
 
+  # Build the index VL tibble with safe extraction
+  hh_ids <- vapply(households, get_hh_id_safe, character(1))
+  index_vls <- vapply(households, get_index_vl, numeric(1))
+
+  # Remove any entries where hh_id extraction failed
+  valid_mask <- !is.na(hh_ids)
+
+  if (sum(valid_mask) == 0) {
+    stop("Could not extract valid household IDs from any households.", call. = FALSE)
+  }
+
   idx_vl <- tibble::tibble(
-    hh_id    = vapply(households, function(hh) unique(hh$hh_id)[1], character(1)),
-    index_vl = vapply(households, get_index_vl, numeric(1))
+    hh_id    = hh_ids[valid_mask],
+    index_vl = index_vls[valid_mask]
   )
 
-  hh_sum %>%
+  plot_data <- hh_sum %>%
     dplyr::left_join(idx_vl, by = "hh_id") %>%
     dplyr::mutate(vl_category = cut(index_vl, breaks = c(-Inf,2,4,6,8,Inf),
                                     labels = c("0-2","2-4","4-6","6-8",">8"))) %>%
-    dplyr::filter(!is.na(vl_category)) %>%
-    ggplot2::ggplot(ggplot2::aes(x = vl_category, y = sar)) +
+    dplyr::filter(!is.na(vl_category))
+
+  if (nrow(plot_data) == 0) {
+    warning("No households with valid index viral load data for SAR plot. Returning empty plot.", call. = FALSE)
+    return(
+      ggplot2::ggplot() +
+        ggplot2::annotate("text", x = 0.5, y = 0.5,
+                          label = "No valid data for SAR by index VL plot",
+                          size = 5, hjust = 0.5) +
+        ggplot2::theme_void() +
+        ggplot2::labs(title = "Household SAR by index-case viral load category")
+    )
+  }
+
+  ggplot2::ggplot(plot_data, ggplot2::aes(x = vl_category, y = sar)) +
     ggplot2::geom_boxplot(alpha = 0.7) +
     ggplot2::geom_point(position = ggplot2::position_jitter(width = 0.15), alpha = 0.5) +
     ggplot2::labs(x = "Index VL (log10 copies/mL, bins)", y = "Household SAR",
@@ -171,10 +271,38 @@
   }
 
   if (!is.null(households)) {
-    if ("daily"    %in% which) out$daily    <- .rsv_plot_daily(households)
-    if ("weekly"   %in% which) out$weekly   <- .rsv_plot_weekly(households)
-    if ("timeline" %in% which) out$timeline <- .rsv_plot_timeline(households)
-    if ("sar"      %in% which) out$sar      <- .rsv_plot_sar_by_index_vl(households)
+    # Pre-filter empty households once for all plots
+    households <- Filter(function(hh) is.data.frame(hh) && nrow(hh) > 0, households)
+
+    if (length(households) == 0) {
+      warning("No valid (non-empty) households found for plotting.", call. = FALSE)
+      return(out)
+    }
+
+    if ("daily"    %in% which) {
+      tryCatch(
+        { out$daily <- .rsv_plot_daily(households) },
+        error = function(e) warning("Daily plot failed: ", e$message, call. = FALSE)
+      )
+    }
+    if ("weekly"   %in% which) {
+      tryCatch(
+        { out$weekly <- .rsv_plot_weekly(households) },
+        error = function(e) warning("Weekly plot failed: ", e$message, call. = FALSE)
+      )
+    }
+    if ("timeline" %in% which) {
+      tryCatch(
+        { out$timeline <- .rsv_plot_timeline(households) },
+        error = function(e) warning("Timeline plot failed: ", e$message, call. = FALSE)
+      )
+    }
+    if ("sar"      %in% which) {
+      tryCatch(
+        { out$sar <- .rsv_plot_sar_by_index_vl(households) },
+        error = function(e) warning("SAR plot failed: ", e$message, call. = FALSE)
+      )
+    }
   }
 
   if (print && length(out)) for (nm in names(out)) print(out[[nm]])

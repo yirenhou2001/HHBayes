@@ -9,7 +9,18 @@ Authors@R: c(
          email = "yiren.hou@yale.edu",
          role = c("aut", "cre"))
 	)
-Description: Tools to simulate and analyze household transmission chains with viral-load dynamics. Generates synthetic household data with role-specific susceptibility and infectivity and optional seasonal forcing, constructs person-day and test-time tables, and estimates community and within-household transmission parameters via Bayesian inference using Stan. Includes utilities to preprocess user-supplied testing data, summarize secondary attack rates and transmission timelines, and create diagnostic plots.
+Description: Simulates and analyzes household transmission chains incorporating 
+    explicit viral load dynamics. The package provides three main capabilities. 
+    (1) Synthetic data generation with role-specific susceptibility and infectivity, 
+    community acquisition, within-household transmission driven by time-varying 
+    viral loads, and configurable surveillance testing; (2) Data preprocessing that 
+    constructs person-day panels and test-time matrices suitable for Bayesian inference, 
+    including time-since-infection tracking for latent period modeling; (3) Parameter 
+    estimation via Stan-based Markov chain Monte Carlo for community and household 
+    transmission rates, with support for estimating latent period duration. Includes 
+    diagnostic plots for infection timelines, secondary attack rates stratified by 
+    index case viral load, and aggregated incidence summaries. Designed for respiratory 
+    pathogens where transmission probability depends on the infector's viral shedding trajectory.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

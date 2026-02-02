@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 
 ### Household transmission chain simulation, estimation, and visualization
 
-This package provides a streamlined pipeline to simulate household infection dynamics, estimate transmission parameters, and visualize epidemic timelines. It uses a Bayesian approach with `rstan` that models transmission probability as a function of viral load, seasonality, and role-specific susceptibility/infectivity.
+This package provides a streamlined pipeline to simulate household infection dynamics, estimate transmission parameters, and visualize epidemic timelines. It uses a Bayesian approach with `rstan` that models transmission probability as a function of viral load (VL), seasonality, and role-specific susceptibility/infectivity.
 
 ## Core Workflow
 
@@ -49,15 +49,15 @@ result <- GenSyn(
   max_days     = 365,
   
   # Stan sampling controls
-  stan_chains  = 2,
-  stan_iter    = 100,
-  stan_warmup  = 10,
+  stan_chains  = 4,
+  stan_iter    = 1000,
+  stan_warmup  = 100,
   stan_control = list(adapt_delta = 0.99, max_treedepth = 20),
   stan_cores   = 4
 )
 
 # View posterior summary
-print(result$postprocessing)
+print(result)
 ```
 
 ### 2) Analyze your own data
@@ -88,17 +88,18 @@ result <- TransmissionChainAnalysis(
   max_days              = T_max,
   
   # Light Stan settings for quick testing
-  stan_chains  = 1,
-  stan_iter    = 500,
-  stan_warmup  = 250,
+  stan_chains  = 3,
+  stan_iter    = 1000,
+  stan_warmup  = 100,
   stan_control = list(adapt_delta = 0.98, max_treedepth = 12),
-  stan_cores   = 1
+  stan_cores   = 3
 )
+print(result)
 ```
 
 ## Input Data Formats
 
-### Per-person episode table (recommended)
+### Per-person episode table (recommended) as it auto-generates placeholders if `vl_full_trajectory` is missing
 
 | Column             | Description                                    |
 |--------------------|------------------------------------------------|
@@ -110,7 +111,7 @@ result <- TransmissionChainAnalysis(
 | `infectious_end`   | Day infectiousness ends                        |
 | `infection_resolved` | Day infection resolves                       |
 
-### Long-format testing table
+### Long-format testing table as it uses `vl_source` parameter to decide
 
 | Column             | Description                                    |
 |--------------------|------------------------------------------------|
@@ -138,7 +139,7 @@ Both main functions return a result object containing:
 
 ## Visualization
 
-Built-in plotting capabilities are available via the `plots` argument:
+Built-in plotting capabilities are available via the `plots` argument for **`GenSyn()`**:
 
 - **`"daily"`**: Daily infections by role
 - **`"weekly"`**: Weekly infections by role  
@@ -155,7 +156,9 @@ result <- GenSyn(
 
 # Access individual plots
 result$plot_list$daily
+result$plot_list$weekly
 result$plot_list$timeline
+result$plot_list$sar
 ```
 
 

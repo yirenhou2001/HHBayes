@@ -6,8 +6,6 @@
 \usage{
 TransmissionChainAnalysis(
   user_data,
-  plots = c("daily", "weekly", "timeline", "sar"),
-  print_plots = FALSE,
   index_vl_column = "vl_test",
   start_date = as.Date("2024-01-01"),
   end_date = as.Date("2024-12-31"),
@@ -31,12 +29,7 @@ TransmissionChainAnalysis(
 \item{user_data}{A data.frame or a list of data.frames describing household testing
 or episode data (see Details for accepted shapes). Lists are row-bound internally.}
 
-\item{plots}{Character vector of plot names to build when compatible data are present:
-\code{c("daily","weekly","timeline","sar")} or \code{"all"}.}
-
-\item{print_plots}{Logical; print plots if \code{TRUE}.}
-
-\item{index_vl_column}{Optional character; name of the viral-load column used by SAR-by-VL plotting. Defaults to \code{"vl_test"} when present.}
+\item{index_vl_column}{Optional character; name of the viral-load (VL) column used by SAR-by-VL plotting. Defaults to \code{"vl_test"} when present.}
 
 \item{start_date, end_date}{\code{Date} study window.}
 
