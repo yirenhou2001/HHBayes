@@ -96,7 +96,7 @@ result <- TransmissionChainAnalysis(
 
 ## Input Data Formats
 
-### Per-person episode table (recommended) (as it auto-generates placeholders if `vl_full_trajectory` specification is missing)
+### Per-person episode table (recommended) (auto-generates placeholders if `vl_full_trajectory` specification is missing)
 
 | Column             | Description                                    |
 |--------------------|------------------------------------------------|
