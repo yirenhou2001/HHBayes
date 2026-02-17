@@ -1,7 +1,7 @@
-# HouseTrans
+# HHBayes
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/yirenhou2001/HouseTrans/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yirenhou2001/HouseTrans/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/yirenhou2001/HHBayes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yirenhou2001/HHBayes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 A Bayesian framework for simulating household infection dynamics and estimating transmission parameters using Stan. The model incorporates viral load dynamics, seasonal forcing, role-specific susceptibility/infectivity, covariates (e.g., vaccination status), and support for reinfections with waning immunity.
@@ -33,7 +33,7 @@ A Bayesian framework for simulating household infection dynamics and estimating 
 
 ```r
 # Install from GitHub
-devtools::install_github("yirenhou2001/HouseTrans")
+devtools::install_github("yirenhou2001/HHBayes")
 ```
 
 ## Quick Start
@@ -41,7 +41,7 @@ devtools::install_github("yirenhou2001/HouseTrans")
 ### 1. Simulate and Estimate (GenSyn)
 
 ```r
-library(HouseTrans)
+library(HHBayes)
 
 # Basic simulation with estimation
 result <- GenSyn(

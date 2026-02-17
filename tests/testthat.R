@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(HouseTrans)
+library(HHBayes)
 
-test_check("HouseTrans")
+test_check("HHBayes")

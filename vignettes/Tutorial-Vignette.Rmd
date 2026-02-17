@@ -1,13 +1,13 @@
 ---
-title: "HouseTrans Tutorial: A Complete Workflow"
-author: "HouseTrans Development Team"
+title: "HHBayes Tutorial: A Complete Workflow"
+author: "HHBayes Development Team"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{HouseTrans Tutorial: A Complete Workflow}
+  %\VignetteIndexEntry{HHBayes Tutorial: A Complete Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,9 +25,9 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-This vignette provides a step-by-step tutorial for using the **HouseTrans** package to simulate household transmission data, prepare it for Bayesian inference, run Stan models, assess convergence, and produce publication-quality figures.
+This vignette provides a step-by-step tutorial for using the **HHBayes** package to simulate household transmission data, prepare it for Bayesian inference, run Stan models, assess convergence, and produce publication-quality figures.
 
-**HouseTrans** provides a unified framework for:
+**HHBayes** provides a unified framework for:
 
 1. Simulating realistic household transmission dynamics
 2. Estimating age-specific susceptibility and infectivity parameters
@@ -38,11 +38,11 @@ This vignette provides a step-by-step tutorial for using the **HouseTrans** pack
 
 ```{r install, eval=FALSE}
 # Install from GitHub
-devtools::install_github("yirenhou2001/HouseTrans")
+devtools::install_github("yirenhou2001/HHBayes")
 ```
 
 ```{r load}
-library(HouseTrans)
+library(HHBayes)
 library(ggplot2)
 library(dplyr)
 ```
@@ -53,7 +53,7 @@ library(dplyr)
 
 ### The Force of Infection
 
-HouseTrans implements a discrete-time stochastic transmission model. For individual $i$ in household $h$ at time $t$, the force of infection is:
+HHBayes implements a discrete-time stochastic transmission model. For individual $i$ in household $h$ at time $t$, the force of infection is:
 
 $$\lambda_{i,h}(t) = \phi_i \left[ \alpha_{\text{comm}} \cdot S(t) + \sum_{j \neq i} \frac{\kappa_j \cdot C_{ij}}{n_h^\delta} \cdot f_j(t) \right]$$
 
@@ -448,7 +448,7 @@ ggsave("fig_combined.pdf", fig_combined, width = 10, height = 15, dpi = 300)
 
 ### Step 6.1: Data Format
 
-HouseTrans accepts two data formats:
+HHBayes accepts two data formats:
 
 **Option A: Long-format testing data**
 ```{r data_format_long}

@@ -1,6 +1,6 @@
 library(devtools)
 
-remove.packages("HouseTrans")
+remove.packages("HHBayes")
 .rs.restartR()
 devtools::document()
 meg = devtools::check()
@@ -13,7 +13,7 @@ devtools::build_manual()
 
 
 ####################################### Examples #######################################
-library(HouseTrans)
+library(HHBayes)
 
 # Basic simulation with estimation
 result <- GenSyn(

@@ -1,4 +1,4 @@
-Package: HouseTrans
+Package: HHBayes
 Title: Bayesian Household Transmission Chain Analysis with Viral Load Dynamics
 Version: 0.0.9
 Authors@R: c(
@@ -52,5 +52,5 @@ SystemRequirements: GNU make
 VignetteBuilder: knitr
 LazyData: true
 Config/testthat/edition: 3
-URL: https://github.com/yirenhou2001/HouseTrans
-BugReports: https://github.com/yirenhou2001/HouseTrans
+URL: https://github.com/yirenhou2001/HHBayes
+BugReports: https://github.com/yirenhou2001/HHBayes

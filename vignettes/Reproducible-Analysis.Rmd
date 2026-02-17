@@ -1,6 +1,6 @@
 ---
 title: "Reproducible Analysis: Manuscript Simulation Studies"
-author: "HouseTrans Development Team"
+author: "HHBayes Development Team"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 
 This vignette reproduces all analyses and figures from the manuscript:
 
-> **HouseTrans: A Flexible Bayesian Framework for Simulating and Analyzing Household Transmission Dynamics**
+> **HHBayes: A Flexible Bayesian Framework for Simulating and Analyzing Household Transmission Dynamics**
 
 The three simulation studies demonstrate:
 
@@ -38,7 +38,7 @@ The three simulation studies demonstrate:
 3. **Simulation Study 3**: Application to Intervention Modeling
 
 ```{r load_packages}
-library(HouseTrans)
+library(HHBayes)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
